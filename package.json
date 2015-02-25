@@ -1,7 +1,7 @@
 {
-  "name": "cordova-splash",
-  "version": "0.3.0",
-  "description": "Automatic splash screen cropping for Cordova",
+  "name": "phonegap-splash",
+  "version": "0.1.0",
+  "description": "Automatic splash screen cropping for PhoneGap",
   "main": "index.js",
   "preferGlobal": "true",
   "directories": {
@@ -12,19 +12,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/AlexDisler/cordova-splash.git"
+    "url": "git://github.com/macdonaldr93/phonegap-splash.git"
   },
   "keywords": [
-    "cordova",
+    "phonegap",
     "splash",
     "crop"
   ],
-  "author": "Alex Disler",
+  "author": "Ryan Macdonald",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/AlexDisler/cordova-splash/issues"
+    "url": "https://github.com/macdonaldr93/phonegap-splash/issues"
   },
-  "homepage": "https://github.com/AlexDisler/cordova-splash",
+  "homepage": "https://github.com/macdonaldr93/phonegap-splash",
   "dependencies": {
     "imagemagick": "^0.1.3",
     "underscore": "^1.6.0",

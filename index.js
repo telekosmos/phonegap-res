@@ -17,34 +17,36 @@ var getPlatforms = function (projectName) {
     platforms.push({
         name : 'ios',
         // TODO: use async fs.exists
-        isAdded : fs.existsSync('platforms/ios'),
-        splashPath : 'platforms/ios/' + projectName + '/Resources/splash/',
+        isAdded : fs.existsSync('www/res/screen/ios'),
+        splashPath : 'www/res/screen/ios/',
         splash : [
-            { name : 'Default-568h@2x~iphone.png',    width : 640,  height : 1136 },
-            { name : 'Default-667h.png',              width : 750,  height : 1334 },
-            { name : 'Default-736h.png',              width : 1242,  height : 2208 },
-            { name : 'Default-Landscape-736h.png',    width : 2208,  height : 1242 },
-            { name : 'Default-Landscape@2x~ipad.png', width : 2048, height : 1536 },
-            { name : 'Default-Landscape~ipad.png',    width : 1024, height : 768 },
-            { name : 'Default-Portrait@2x~ipad.png',  width : 1536, height : 2048 },
-            { name : 'Default-Portrait~ipad.png',     width : 768,  height : 1024 },
-            { name : 'Default@2x~iphone.png',         width : 640,  height : 960 },
-            { name : 'Default~iphone.png',            width : 320,  height : 480 },
+	        { name : 'screen-iphone-portrait.png', width : 320, height :480 },
+		    { name : 'screen-iphone-portrait-2x.png', width : 640, height :960 },
+		    { name : 'screen-iphone-portrait-568h-2x.png', width : 640, height :1136 },
+		    { name : 'screen-ipad-landscape.png', width : 1024, height :768 },
+		    { name : 'screen-ipad-portrait.png', width : 768, height :1024 },
+		    { name : 'screen-ipad-landscape-2x.png', width : 2048, height :1496 },
+		    { name : 'screen-ipad-portrait-2x.png', width : 1536, height :2008 },
+		    
+		    { name : 'screen-iphone6-portrait.png', width : 750, height :1334 },
+		    { name : 'screen-iphone6-landscape.png', width : 1334, height :750 },
+		    { name : 'screen-iphone6-plus-portrait.png', width : 1242, height :2208 },
+		    { name : 'screen-iphone6-plus-landscape.png', width : 2208, height :1242 },
         ]
     });
     platforms.push({
         name : 'android',
-        isAdded : fs.existsSync('platforms/android'),
-        splashPath : 'platforms/android/res/',
+        isAdded : fs.existsSync('www/res/screen/android'),
+        splashPath : 'www/res/screen/android/',
         splash : [
-            { name : 'drawable-land-ldpi/screen.png',  width : 320, height: 200 },
-            { name : 'drawable-land-mdpi/screen.png',  width : 480, height: 320 },
-            { name : 'drawable-land-hdpi/screen.png',  width : 800, height: 480 },
-            { name : 'drawable-land-xhdpi/screen.png', width : 1280, height: 720 },
-            { name : 'drawable-port-ldpi/screen.png',  width : 200, height: 320 },
-            { name : 'drawable-port-mdpi/screen.png',  width : 320, height: 480 },
-            { name : 'drawable-port-hdpi/screen.png',  width : 480, height: 800 },
-            { name : 'drawable-port-xhdpi/screen.png', width : 720, height: 1280 },
+	        { name : 'screen-hdpi-landscape.png', width : 800, height: 480 },
+		    { name : 'screen-hdpi-portrait.png', width : 480, height: 800 },
+		    { name : 'screen-ldpi-landscape.png', width : 320, height: 200 },
+		    { name : 'screen-ldpi-portrait.png', width : 200, height: 320 },
+		    { name : 'screen-mdpi-landscape.png', width : 480, height: 320 },
+		    { name : 'screen-mdpi-portrait.png', width : 320, height: 480 },
+		    { name : 'screen-xhdpi-landscape.png', width : 1280, height: 720 },
+		    { name : 'screen-xhdpi-portrait.png', width : 720, height: 1280 },
         ]
     });
     // TODO: add all platforms
@@ -59,7 +61,7 @@ var getPlatforms = function (projectName) {
  */
 var settings = {};
 settings.CONFIG_FILE = 'config.xml';
-settings.SPLASH_FILE   = 'splash.png';
+settings.SPLASH_FILE   = 'www/splash.png';
 
 /**
  * @var {Object} console utils
@@ -186,7 +188,7 @@ var atLeastOnePlatformFound = function () {
             display.success('platforms found: ' + _(activePlatforms).pluck('name').join(', '));
             deferred.resolve();
         } else {
-            display.error('No cordova platforms found. Make sure you are in the root folder of your Cordova project and add platforms with \'cordova platform add\'');
+            display.error('No phonegap platforms found. Make sure you are in the root folder of your phonegap project and add platforms with \'phonegap platform add\'');
             deferred.reject();
         }
     });
@@ -224,7 +226,7 @@ var configFileExists = function () {
             display.success(settings.CONFIG_FILE + ' exists');
             deferred.resolve();
         } else {
-            display.error('cordova\'s ' + settings.CONFIG_FILE + ' does not exist in the root folder');
+            display.error('phonegap\'s ' + settings.CONFIG_FILE + ' does not exist in the root folder');
             deferred.reject();
         }
     });
