@@ -1,9 +1,9 @@
-var fs     = require('fs');
+var fs = require('fs');
 var xml2js = require('xml2js');
-var ig     = require('imagemagick');
+var ig = require('imagemagick');
 var colors = require('colors');
-var _      = require('underscore');
-var Q      = require('q');
+var _ = require('underscore');
+var Q = require('q');
 
 /**
  * Check which platforms are added to the project and return their splash screen names and sizes
@@ -11,43 +11,100 @@ var Q      = require('q');
  * @param  {String} projectName
  * @return {Promise} resolves with an array of platforms
  */
-var getPlatforms = function (projectName) {
+var getPlatforms = function(projectName) {
     var deferred = Q.defer();
     var platforms = [];
     platforms.push({
-        name : 'ios',
+        name: 'ios',
         // TODO: use async fs.exists
-        isAdded : fs.existsSync('www/res/screen/ios'),
-        splashPath : 'www/res/screen/ios/',
-        splash : [
-	        { name : 'screen-iphone-portrait.png', width : 320, height :480 },
-		    { name : 'screen-iphone-portrait-2x.png', width : 640, height :960 },
-		    { name : 'screen-iphone-portrait-568h-2x.png', width : 640, height :1136 },
-		    { name : 'screen-ipad-landscape.png', width : 1024, height :768 },
-		    { name : 'screen-ipad-portrait.png', width : 768, height :1024 },
-		    { name : 'screen-ipad-landscape-2x.png', width : 2048, height :1496 },
-		    { name : 'screen-ipad-portrait-2x.png', width : 1536, height :2008 },
-		    
-		    { name : 'screen-iphone6-portrait.png', width : 750, height :1334 },
-		    { name : 'screen-iphone6-landscape.png', width : 1334, height :750 },
-		    { name : 'screen-iphone6-plus-portrait.png', width : 1242, height :2208 },
-		    { name : 'screen-iphone6-plus-landscape.png', width : 2208, height :1242 },
+        isAdded: fs.existsSync('www/res/screen/ios'),
+        splashPath: 'www/res/screen/ios/',
+        splash: [{
+                name: 'screen-iphone-portrait.png',
+                width: 320,
+                height: 480
+            }, {
+                name: 'screen-iphone-portrait-2x.png',
+                width: 640,
+                height: 960
+            }, {
+                name: 'screen-iphone-portrait-568h-2x.png',
+                width: 640,
+                height: 1136
+            }, {
+                name: 'screen-ipad-landscape.png',
+                width: 1024,
+                height: 768
+            }, {
+                name: 'screen-ipad-portrait.png',
+                width: 768,
+                height: 1024
+            }, {
+                name: 'screen-ipad-landscape-2x.png',
+                width: 2048,
+                height: 1496
+            }, {
+                name: 'screen-ipad-portrait-2x.png',
+                width: 1536,
+                height: 2008
+            },
+
+            {
+                name: 'screen-iphone6-portrait.png',
+                width: 750,
+                height: 1334
+            }, {
+                name: 'screen-iphone6-landscape.png',
+                width: 1334,
+                height: 750
+            }, {
+                name: 'screen-iphone6-plus-portrait.png',
+                width: 1242,
+                height: 2208
+            }, {
+                name: 'screen-iphone6-plus-landscape.png',
+                width: 2208,
+                height: 1242
+            },
         ]
     });
     platforms.push({
-        name : 'android',
-        isAdded : fs.existsSync('www/res/screen/android'),
-        splashPath : 'www/res/screen/android/',
-        splash : [
-	        { name : 'screen-hdpi-landscape.png', width : 800, height: 480 },
-		    { name : 'screen-hdpi-portrait.png', width : 480, height: 800 },
-		    { name : 'screen-ldpi-landscape.png', width : 320, height: 200 },
-		    { name : 'screen-ldpi-portrait.png', width : 200, height: 320 },
-		    { name : 'screen-mdpi-landscape.png', width : 480, height: 320 },
-		    { name : 'screen-mdpi-portrait.png', width : 320, height: 480 },
-		    { name : 'screen-xhdpi-landscape.png', width : 1280, height: 720 },
-		    { name : 'screen-xhdpi-portrait.png', width : 720, height: 1280 },
-        ]
+        name: 'android',
+        isAdded: fs.existsSync('www/res/screen/android'),
+        splashPath: 'www/res/screen/android/',
+        splash: [{
+            name: 'screen-hdpi-landscape.png',
+            width: 800,
+            height: 480
+        }, {
+            name: 'screen-hdpi-portrait.png',
+            width: 480,
+            height: 800
+        }, {
+            name: 'screen-ldpi-landscape.png',
+            width: 320,
+            height: 200
+        }, {
+            name: 'screen-ldpi-portrait.png',
+            width: 200,
+            height: 320
+        }, {
+            name: 'screen-mdpi-landscape.png',
+            width: 480,
+            height: 320
+        }, {
+            name: 'screen-mdpi-portrait.png',
+            width: 320,
+            height: 480
+        }, {
+            name: 'screen-xhdpi-landscape.png',
+            width: 1280,
+            height: 720
+        }, {
+            name: 'screen-xhdpi-portrait.png',
+            width: 720,
+            height: 1280
+        }, ]
     });
     // TODO: add all platforms
     deferred.resolve(platforms);
@@ -60,22 +117,22 @@ var getPlatforms = function (projectName) {
  * TODO: add option to get these values as CLI params
  */
 var settings = {};
-settings.CONFIG_FILE = 'config.xml';
-settings.SPLASH_FILE   = 'www/splash.png';
+settings.CONFIG_FILE = 'www/config.xml';
+settings.SPLASH_FILE = 'www/splash.png';
 
 /**
  * @var {Object} console utils
  */
 var display = {};
-display.success = function (str) {
+display.success = function(str) {
     str = '✓  '.green + str;
     console.log('  ' + str);
 };
-display.error = function (str) {
+display.error = function(str) {
     str = '✗  '.red + str;
     console.log('  ' + str);
 };
-display.header = function (str) {
+display.header = function(str) {
     console.log('');
     console.log(' ' + str.cyan.underline);
     console.log('');
@@ -86,14 +143,14 @@ display.header = function (str) {
  *
  * @return {Promise} resolves to a string - the project's name
  */
-var getProjectName = function () {
+var getProjectName = function() {
     var deferred = Q.defer();
     var parser = new xml2js.Parser();
-    data = fs.readFile(settings.CONFIG_FILE, function (err, data) {
+    data = fs.readFile(settings.CONFIG_FILE, function(err, data) {
         if (err) {
             deferred.reject(err);
         }
-        parser.parseString(data, function (err, result) {
+        parser.parseString(data, function(err, result) {
             if (err) {
                 deferred.reject(err);
             }
@@ -111,7 +168,7 @@ var getProjectName = function () {
  * @param  {Object} splash
  * @return {Promise}
  */
-var generateSplash = function (platform, splash) {
+var generateSplash = function(platform, splash) {
     var deferred = Q.defer();
     ig.crop({
         srcPath: settings.SPLASH_FILE,
@@ -120,7 +177,7 @@ var generateSplash = function (platform, splash) {
         format: 'png',
         width: splash.width,
         height: splash.height,
-    } , function(err, stdout, stderr){
+    }, function(err, stdout, stderr) {
         if (err) {
             deferred.reject(err);
         } else {
@@ -137,17 +194,17 @@ var generateSplash = function (platform, splash) {
  * @param  {Object} platform
  * @return {Promise}
  */
-var generateSplashForPlatform = function (platform) {
+var generateSplashForPlatform = function(platform) {
     var deferred = Q.defer();
     display.header('Generating splash screen for ' + platform.name);
     var all = [];
     var splashes = platform.splash;
-    splashes.forEach(function (splash) {
+    splashes.forEach(function(splash) {
         all.push(generateSplash(platform, splash));
     });
-    Q.all(all).then(function () {
+    Q.all(all).then(function() {
         deferred.resolve();
-    }).catch(function (err) {
+    }).catch(function(err) {
         console.log(err);
     });
     return deferred.promise;
@@ -159,17 +216,19 @@ var generateSplashForPlatform = function (platform) {
  * @param  {Array} platforms
  * @return {Promise}
  */
-var generateSplashes = function (platforms) {
+var generateSplashes = function(platforms) {
     var deferred = Q.defer();
     var sequence = Q();
     var all = [];
-    _(platforms).where({ isAdded : true }).forEach(function (platform) {
-        sequence = sequence.then(function () {
+    _(platforms).where({
+        isAdded: true
+    }).forEach(function(platform) {
+        sequence = sequence.then(function() {
             return generateSplashForPlatform(platform);
         });
         all.push(sequence);
     });
-    Q.all(all).then(function () {
+    Q.all(all).then(function() {
         deferred.resolve();
     });
     return deferred.promise;
@@ -180,10 +239,12 @@ var generateSplashes = function (platforms) {
  *
  * @return {Promise} resolves if at least one platform was found, rejects otherwise
  */
-var atLeastOnePlatformFound = function () {
+var atLeastOnePlatformFound = function() {
     var deferred = Q.defer();
-    getPlatforms().then(function (platforms) {
-        var activePlatforms = _(platforms).where({ isAdded : true });
+    getPlatforms().then(function(platforms) {
+        var activePlatforms = _(platforms).where({
+            isAdded: true
+        });
         if (activePlatforms.length > 0) {
             display.success('platforms found: ' + _(activePlatforms).pluck('name').join(', '));
             deferred.resolve();
@@ -200,9 +261,9 @@ var atLeastOnePlatformFound = function () {
  *
  * @return {Promise} resolves if exists, rejects otherwise
  */
-var validSplashExists = function () {
+var validSplashExists = function() {
     var deferred = Q.defer();
-    fs.exists(settings.SPLASH_FILE, function (exists) {
+    fs.exists(settings.SPLASH_FILE, function(exists) {
         if (exists) {
             display.success(settings.SPLASH_FILE + ' exists');
             deferred.resolve();
@@ -219,9 +280,9 @@ var validSplashExists = function () {
  *
  * @return {Promise} resolves if exists, rejects otherwise
  */
-var configFileExists = function () {
+var configFileExists = function() {
     var deferred = Q.defer();
-    fs.exists(settings.CONFIG_FILE, function (exists) {
+    fs.exists(settings.CONFIG_FILE, function(exists) {
         if (exists) {
             display.success(settings.CONFIG_FILE + ' exists');
             deferred.resolve();
@@ -241,10 +302,10 @@ atLeastOnePlatformFound()
     .then(getProjectName)
     .then(getPlatforms)
     .then(generateSplashes)
-    .catch(function (err) {
+    .catch(function(err) {
         if (err) {
             console.log(err);
         }
-    }).then(function () {
+    }).then(function() {
         console.log('');
     });
