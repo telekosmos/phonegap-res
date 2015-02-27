@@ -1,7 +1,7 @@
 {
-  "name": "phonegap-splash",
-  "version": "0.1.1",
-  "description": "Automatic splash screen cropping for PhoneGap",
+  "name": "phonegap-res",
+  "version": "0.2.0",
+  "description": "Automatic splash screen & icon cropping for PhoneGap",
   "main": "index.js",
   "preferGlobal": "true",
   "directories": {
@@ -12,19 +12,20 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/macdonaldr93/phonegap-splash.git"
+    "url": "git://github.com/macdonaldr93/phonegap-res.git"
   },
   "keywords": [
     "phonegap",
     "splash",
+    "icon",
     "crop"
   ],
   "author": "Ryan Macdonald",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/macdonaldr93/phonegap-splash/issues"
+    "url": "https://github.com/macdonaldr93/phonegap-res/issues"
   },
-  "homepage": "https://github.com/macdonaldr93/phonegap-splash",
+  "homepage": "https://github.com/macdonaldr93/phonegap-res",
   "dependencies": {
     "imagemagick": "^0.1.3",
     "underscore": "^1.6.0",

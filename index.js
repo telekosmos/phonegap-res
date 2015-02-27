@@ -17,8 +17,9 @@ var getPlatforms = function(projectName) {
     platforms.push({
         name: 'ios',
         // TODO: use async fs.exists
-        isAdded: fs.existsSync('www/res/screen/ios'),
+        isAdded: fs.existsSync('www/res/screen/ios') && fs.existsSync('www/res/icon/ios'),
         splashPath: 'www/res/screen/ios/',
+        iconPath: 'www/res/icon/ios/',
         splash: [{
                 name: 'screen-iphone-portrait.png',
                 width: 320,
@@ -47,9 +48,7 @@ var getPlatforms = function(projectName) {
                 name: 'screen-ipad-portrait-2x.png',
                 width: 1536,
                 height: 2008
-            },
-
-            {
+            }, {
                 name: 'screen-iphone6-portrait.png',
                 width: 750,
                 height: 1334
@@ -66,45 +65,83 @@ var getPlatforms = function(projectName) {
                 width: 2208,
                 height: 1242
             },
+        ],        
+        icon: [{
+                name: 'icon-57.png',
+                width: 57,
+                height: 57
+            }, {
+                name: 'icon-72.png',
+                width: 72,
+                height: 72
+            }, {
+                name: 'icon-57-2x.png',
+                width: 114,
+                height: 114
+            }, {
+                name: 'icon-72-2x.png',
+                width: 144,
+                height: 144
+            },
         ]
     });
     platforms.push({
         name: 'android',
-        isAdded: fs.existsSync('www/res/screen/android'),
+        isAdded: fs.existsSync('www/res/screen/android') && fs.existsSync('www/res/icon/android'),
         splashPath: 'www/res/screen/android/',
+        iconPath: 'www/res/icon/android/',
         splash: [{
-            name: 'screen-hdpi-landscape.png',
-            width: 800,
-            height: 480
-        }, {
-            name: 'screen-hdpi-portrait.png',
-            width: 480,
-            height: 800
-        }, {
-            name: 'screen-ldpi-landscape.png',
-            width: 320,
-            height: 200
-        }, {
-            name: 'screen-ldpi-portrait.png',
-            width: 200,
-            height: 320
-        }, {
-            name: 'screen-mdpi-landscape.png',
-            width: 480,
-            height: 320
-        }, {
-            name: 'screen-mdpi-portrait.png',
-            width: 320,
-            height: 480
-        }, {
-            name: 'screen-xhdpi-landscape.png',
-            width: 1280,
-            height: 720
-        }, {
-            name: 'screen-xhdpi-portrait.png',
-            width: 720,
-            height: 1280
-        }, ]
+	            name: 'screen-hdpi-landscape.png',
+	            width: 800,
+	            height: 480
+	        }, {
+	            name: 'screen-hdpi-portrait.png',
+	            width: 480,
+	            height: 800
+	        }, {
+	            name: 'screen-ldpi-landscape.png',
+	            width: 320,
+	            height: 200
+	        }, {
+	            name: 'screen-ldpi-portrait.png',
+	            width: 200,
+	            height: 320
+	        }, {
+	            name: 'screen-mdpi-landscape.png',
+	            width: 480,
+	            height: 320
+	        }, {
+	            name: 'screen-mdpi-portrait.png',
+	            width: 320,
+	            height: 480
+	        }, {
+	            name: 'screen-xhdpi-landscape.png',
+	            width: 1280,
+	            height: 720
+	        }, {
+	            name: 'screen-xhdpi-portrait.png',
+	            width: 720,
+	            height: 1280
+	        }, 
+        ],
+        icon: [{
+                name: 'icon-36-ldpi.png',
+                width: 36,
+                height: 36
+            }, {
+                name: 'icon-48-mdpi.png',
+                width: 48,
+                height: 48
+            }, {
+                name: 'icon-72-hdpi.png',
+                width: 72,
+                height: 72
+            }, {
+                name: 'icon-96-xhdpi.png',
+                width: 96,
+                height: 96
+            },
+        ]
     });
     // TODO: add all platforms
     deferred.resolve(platforms);
@@ -113,12 +150,13 @@ var getPlatforms = function(projectName) {
 
 
 /**
- * @var {Object} settings - names of the config file and of the splash image
+ * @var {Object} settings - names of the config file and of the splash/icon image
  * TODO: add option to get these values as CLI params
  */
 var settings = {};
 settings.CONFIG_FILE = 'www/config.xml';
 settings.SPLASH_FILE = 'www/splash.png';
+settings.ICON_FILE = 'www/icon.png';
 
 /**
  * @var {Object} console utils
@@ -189,6 +227,33 @@ var generateSplash = function(platform, splash) {
 };
 
 /**
+ * Crops and creates a new icon in the platform's folder.
+ *
+ * @param  {Object} platform
+ * @param  {Object} icon
+ * @return {Promise}
+ */
+var generateIcon = function(platform, icon) {
+    var deferred = Q.defer();
+    ig.crop({
+        srcPath: settings.ICON_FILE,
+        dstPath: platform.iconPath + icon.name,
+        quality: 1,
+        format: 'png',
+        width: icon.width,
+        height: icon.height,
+    }, function(err, stdout, stderr) {
+        if (err) {
+            deferred.reject(err);
+        } else {
+            deferred.resolve();
+            display.success(icon.name + ' created');
+        }
+    });
+    return deferred.promise;
+};
+
+/**
  * Generates splash based on the platform object
  *
  * @param  {Object} platform
@@ -201,6 +266,28 @@ var generateSplashForPlatform = function(platform) {
     var splashes = platform.splash;
     splashes.forEach(function(splash) {
         all.push(generateSplash(platform, splash));
+    });
+    Q.all(all).then(function() {
+        deferred.resolve();
+    }).catch(function(err) {
+        console.log(err);
+    });
+    return deferred.promise;
+};
+
+/**
+ * Generates icon based on the platform object
+ *
+ * @param  {Object} platform
+ * @return {Promise}
+ */
+var generateIconForPlatform = function(platform) {
+    var deferred = Q.defer();
+    display.header('Generating icon for ' + platform.name);
+    var all = [];
+    var icons = platform.icon;
+    icons.forEach(function(icon) {
+        all.push(generateIcon(platform, icon));
     });
     Q.all(all).then(function() {
         deferred.resolve();
@@ -225,6 +312,30 @@ var generateSplashes = function(platforms) {
     }).forEach(function(platform) {
         sequence = sequence.then(function() {
             return generateSplashForPlatform(platform);
+        });
+        all.push(sequence);
+    });
+    Q.all(all).then(function() {
+        deferred.resolve();
+    });
+    return deferred.promise;
+};
+
+/**
+ * Goes over all the platforms and triggers icon generation
+ *
+ * @param  {Array} platforms
+ * @return {Promise}
+ */
+var generateIcons = function(platforms) {
+    var deferred = Q.defer();
+    var sequence = Q();
+    var all = [];
+    _(platforms).where({
+        isAdded: true
+    }).forEach(function(platform) {
+        sequence = sequence.then(function() {
+            return generateIconForPlatform(platform);
         });
         all.push(sequence);
     });
@@ -276,6 +387,26 @@ var validSplashExists = function() {
 };
 
 /**
+ * Checks if a valid icon file exists
+ *
+ * @return {Promise} resolves if exists, rejects otherwise
+ */
+var validIconExists = function() {
+    var deferred = Q.defer();
+    fs.exists(settings.ICON_FILE, function(exists) {
+	    display.header('Checking Project & Icon');
+        if (exists) {
+            display.success(settings.ICON_FILE + ' exists');
+            deferred.resolve();
+        } else {
+            display.error(settings.ICON_FILE + ' does not exist in the root folder');
+            deferred.reject();
+        }
+    });
+    return deferred.promise;
+};
+
+/**
  * Checks if a config.xml file exists
  *
  * @return {Promise} resolves if exists, rejects otherwise
@@ -302,6 +433,18 @@ atLeastOnePlatformFound()
     .then(getProjectName)
     .then(getPlatforms)
     .then(generateSplashes)
+    .catch(function(err) {
+        if (err) {
+            console.log(err);
+        }
+    }).then(function() {
+        console.log('');
+    })
+    .then(validIconExists)
+    .then(configFileExists)
+    .then(getProjectName)
+    .then(getPlatforms)
+    .then(generateIcons)
     .catch(function(err) {
         if (err) {
             console.log(err);
