@@ -1,3 +1,7 @@
+# phonegap-splash
+
+phonegap-splash has been abandoned in favour of phonegap-res. phonegap-res can generate both icons and splash screens. Please move forward with phonegap-res. Thank you!
+
 # phonegap-res
 
 Automatic splash screen & icon generator for PhoneGap. Create a splash screen (2208x2208) & icon (1024x1024) once in the www folder of your phonegap project and use phonegap-res to automatically crop and copy it for all the platforms your project supports (currenty works with iOS and Android).
@@ -30,4 +34,5 @@ MIT
 
 ### Future Development
 
+- Add arguments to independently generate icons or splash screens.
 - Add other platforms.

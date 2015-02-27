@@ -1,6 +1,6 @@
 {
   "name": "phonegap-res",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Automatic splash screen & icon cropping for PhoneGap",
   "main": "index.js",
   "preferGlobal": "true",
