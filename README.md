@@ -1,16 +1,16 @@
-# phonegap-splash
+# phonegap-res
 
-Automatic splash screen generator for PhoneGap. Create a splash screen (2208x2208) once in the www folder of your phonegap project and use phonegap-splash to automatically crop and copy it for all the platforms your project supports (currenty works with iOS and Android).
+Automatic splash screen & icon generator for PhoneGap. Create a splash screen (2208x2208) & icon (1024x1024) once in the www folder of your phonegap project and use phonegap-res to automatically crop and copy it for all the platforms your project supports (currenty works with iOS and Android).
 
 ### Installation
 
-    sudo npm install -g phonegap-splash
+    sudo npm install -g phonegap-res
 
 ### Usage
 
-Create a ```splash.png``` file in the www folder of your phonegap project and run:
+Create a ```splash.png``` & ```icon.png``` file in the www folder of your phonegap project and run:
 
-    phonegap-splash
+    phonegap-res
 
 ### Requirements
 
@@ -30,5 +30,4 @@ MIT
 
 ### Future Development
 
-- Generate icons and splash at same time.
 - Add other platforms.
