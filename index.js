@@ -154,7 +154,7 @@ var getPlatforms = function(projectName) {
  * TODO: add option to get these values as CLI params
  */
 var settings = {};
-settings.CONFIG_FILE = 'www/config.xml';
+settings.CONFIG_FILE = 'config.xml';
 settings.SPLASH_FILE = 'www/splash.png';
 settings.ICON_FILE = 'www/icon.png';
 
