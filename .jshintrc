@@ -1,0 +1,7 @@
+{
+	"esnext": true,
+	"strict": "implied",
+	"undef": true,
+	"devel": true,
+	"maxdepth": 3
+}
