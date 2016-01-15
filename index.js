@@ -1,3 +1,5 @@
+"use strict";
+
 var fs = require('fs');
 var xml2js = require('xml2js');
 var ig = require('imagemagick');
@@ -294,6 +296,10 @@ display.header = function(str) {
 	console.log(' ' + str.cyan.underline);
 	console.log('');
 };
+display.info = function(str) {
+	str = 'i  '.yellow + str;
+	console.log('  '+str);
+};
 
 /**
  * read the config file and get the project name
@@ -303,15 +309,18 @@ display.header = function(str) {
 var getProjectName = function() {
 	var deferred = Q.defer();
 	var parser = new xml2js.Parser();
-	data = fs.readFile(settings.CONFIG_FILE, function(err, data) {
+	var data = fs.readFile(settings.CONFIG_FILE, function(err, data) {
 		if (err) {
+			display.error(err);
 			deferred.reject(err);
 		}
 		parser.parseString(data, function(err, result) {
 			if (err) {
+				display.error(err);
 				deferred.reject(err);
 			}
 			var projectName = result.widget.name[0];
+			display.success(projectName);
 			deferred.resolve(projectName);
 		});
 	});
@@ -329,7 +338,7 @@ var generateSplash = function(platform, splash) {
 	var deferred = Q.defer();
 	ig.crop({
 		srcPath: settings.SPLASH_FILE,
-		dstPath: platform.splashPath + splash.name,
+		dstPath: platform.splashPath+'/'+splash.name,
 		quality: 1,
 		format: 'png',
 		width: splash.width,
@@ -354,9 +363,10 @@ var generateSplash = function(platform, splash) {
  */
 var generateIcon = function(platform, icon) {
 	var deferred = Q.defer();
+	display.info('Icon '+settings.ICON_FILE+ ' -> '.cyan+platform.iconPath+'/'+icon.name);
 	ig.crop({
 		srcPath: settings.ICON_FILE,
-		dstPath: platform.iconPath + icon.name,
+		dstPath: platform.iconPath +'/'+icon.name,
 		quality: 1,
 		format: 'png',
 		width: icon.width,
@@ -453,6 +463,7 @@ var generateIcons = function(platforms) {
 	_(platforms).where({
 		isAdded: true
 	}).forEach(function(platform) {
+		display.info('About to generate icon for '+platform.name);
 		sequence = sequence.then(function() {
 			return generateIconForPlatform(platform);
 		});
@@ -477,8 +488,9 @@ var atLeastOnePlatformFound = function() {
 		});
 		if (activePlatforms.length > 0) {
 			display.success('platforms found: ' + _(activePlatforms).pluck('name').join(', '));
-			deferred.resolve();
-		} else {
+			deferred.resolve(activePlatforms);
+		} 
+		else {
 			display.error('No phonegap platforms found. Make sure you are in the root folder of your phonegap project and add platforms with \'phonegap platform add\'');
 			deferred.reject();
 		}
@@ -496,8 +508,9 @@ var validSplashExists = function() {
 	fs.exists(settings.SPLASH_FILE, function(exists) {
 		if (exists) {
 			display.success(settings.SPLASH_FILE + ' exists');
-			deferred.resolve();
-		} else {
+			deferred.resolve(true);
+		} 
+		else {
 			display.error(settings.SPLASH_FILE + ' does not exist in the root folder');
 			deferred.reject();
 		}
@@ -516,8 +529,9 @@ var validIconExists = function() {
 		display.header('Checking Project & Icon');
 		if (exists) {
 			display.success(settings.ICON_FILE + ' exists');
-			deferred.resolve();
-		} else {
+			deferred.resolve(true);
+		} 
+		else {
 			display.error(settings.ICON_FILE + ' does not exist in the root folder');
 			deferred.reject();
 		}
@@ -536,7 +550,8 @@ var configFileExists = function() {
 		if (exists) {
 			display.success(settings.CONFIG_FILE + ' exists');
 			deferred.resolve();
-		} else {
+		} 
+		else {
 			display.error('phonegap\'s ' + settings.CONFIG_FILE + ' does not exist in the root folder');
 			deferred.reject();
 		}
@@ -547,8 +562,47 @@ var configFileExists = function() {
 display.header('Checking Project & Splash');
 
 var version = function() {
-	console.log(colors.blue('phonegap-res')+' '+colors.yellow('enhanced version'));
-}
+	var deferred = Q.defer();
+	setTimeout(function() {
+		console.log('deferred resolve'.underline.red);
+		deferred.resolve('0.1');
+	}, 1000);
+
+	// console.log(colors.blue('phonegap-res')+' '+colors.yellow('enhanced version'));
+	return deferred.promise;
+};
+
+
+var iconsGeneration = function() {
+	getProjectName()
+	.then(getPlatforms)
+	.then(generateIcons)
+	.catch(function(err) {
+		if (err) {
+			console.log(err);
+		}
+	}).then(function() {
+		console.log('');
+	});
+};
+
+
+var splashGeneration = function() {
+	atLeastOnePlatformFound()
+	.then(validSplashExists)
+	.then(configFileExists)
+	.then(getProjectName)
+	.then(getPlatforms)
+	.then(generateSplashes)
+	.catch(function(err) {
+		if (err) {
+			console.log(err);
+		}
+	}).then(function() {
+		console.log('');
+	});
+};
+
 
 var main = function() {
 	atLeastOnePlatformFound()
@@ -576,19 +630,22 @@ var main = function() {
 	}).then(function() {
 		console.log('');
 	});
-}
+};
 
 module.exports = {
 	version: version,
 	main: main,
+	icons: iconsGeneration,
+	splashes: splashGeneration,
 	configFileExists: configFileExists,
 	validIconExists: validIconExists,
 	validSplashExists: validSplashExists,
 	getProjectName: getProjectName,
 	getPlatforms: getPlatforms,
+	atLeastOnePlatformFound: atLeastOnePlatformFound,
 	generateSplahes: generateSplashes,
-	generetaIcons: generateIcons
-}
+	generateIcons: generateIcons
+};
 
 /* MAIN //////////////////
 atLeastOnePlatformFound()

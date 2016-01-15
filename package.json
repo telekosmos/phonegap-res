@@ -32,5 +32,12 @@
     "colors": "^0.6.2",
     "q": "^1.0.1",
     "xml2js": "^0.4.3"
+  },
+  "devDependencies": {
+    "mocha": "^2.3.4",
+    "chai": "^3.4.1",
+    "sinon": "^1.17.2",
+    "sinon-chai": "^2.8.0",
+    "chai-as-promised": "^5.2.0"
   }
 }

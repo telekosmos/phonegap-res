@@ -3,5 +3,7 @@
 	"strict": "implied",
 	"undef": true,
 	"devel": true,
-	"maxdepth": 3
+	"maxdepth": 3,
+	"mocha": true,
+	"node": true
 }
