@@ -13,9 +13,7 @@ var display = require('./util').display;
 
 var RESOURCES_DIR = constants.RESOURCES_DIR;
 var IOS_DIR = constants.IOS_DIR;
-// var IOS_PREFIX_ICON = constants.IOS_PREFIX_ICON;
-// var IOS_PREFIX_SPLASH = constants.IOS_PREFIX_SPLASH;
-var AND_DIR = constants.AND_DIR;
+var AND_DIR = constants.ANDR_DIR;
 // var AND_PREFIX_ICON = constants.AND_PREFIX_ICON;
 // var AND_PREFIX_SPLASH_LAND = constants.AND_PREFIX_SPLASH_LAND;
 // var AND_PREFIX_SPLASH_PORT = constants.AND_PREFIX_SPLASH_PORT;
@@ -50,7 +48,7 @@ var getPlatforms = function() {
 	platforms.push({
 		name: 'ios',
 		// TODO: use async fs.exists
-		isAdded: fs.existsSync(IOS_DIR+'/splash') && fs.existsSync(IOS_DIR+'/icon'),
+		isAdded: fs.existsSync(IOS_DIR), // fs.existsSync(IOS_DIR+'/splash') && fs.existsSync(IOS_DIR+'/icon'),
 		splashPath: IOS_DIR+'/splash',
 		iconPath: IOS_DIR+'/icon',
 		icon: [{
@@ -169,7 +167,7 @@ var getPlatforms = function() {
 
 	platforms.push({
 		name: 'android',
-		isAdded: fs.existsSync(AND_DIR+'/splash') && fs.existsSync(AND_DIR+'/icon'),
+		isAdded: fs.existsSync(AND_DIR), // fs.existsSync(AND_DIR+'/splash') && fs.existsSync(AND_DIR+'/icon'),
 		splashPath: AND_DIR+'/splash',
 		iconPath: AND_DIR+'/icon',
 		icon: [{
@@ -398,7 +396,7 @@ var getAssetsFromSettings = function(platform, type) {
 
 
 var getAllAssets = function() {
-	display.info('Getting all settings assets...');
+	// display.info('Getting all settings assets...');
 	var iosIcon = getAssetsFromSettings('ios', 'icon');
 	var iosSplash = getAssetsFromSettings('ios', 'splash');
 	var andrIcon = getAssetsFromSettings('android', 'icon');
@@ -420,7 +418,7 @@ var writeToFile = function(configObj) {
 		if (err)
 			defer.reject(err);
 		else {
-			display.success('configObj written to file '+settings.CONFIG_FILE);
+			display.success('File updated: '+settings.CONFIG_FILE);
 			defer.resolve();
 		}
 	});
@@ -434,7 +432,7 @@ var writeToFile = function(configObj) {
  * @return {Promise} A promise resolved with all results or rejected if one promise is reject
  */
 var convertAllAssets = function(assets) {
-	display.info('Converting all '+assets.length+' assets');
+	// display.info('Converting all '+assets.length+' assets');
 	var promiseArray = assets.map(function(asset) {
 		return convert4xml(asset);
 	});
@@ -459,7 +457,7 @@ var updateConfigFile = function() {
 	var configObj;
 	parseConfigFile()
 		.then(function(cfgObj) {
-			display.info('config.xml parsed...');
+			// display.info('config.xml parsed...');
 			configObj = cfgObj;
 			if (configObj.widget.platform)
 				delete configObj.widget.platform;
@@ -497,7 +495,7 @@ var updateConfigFile = function() {
 						configObj.widget.platform[0].splash = newAsset;		
 				}
 			});
-			display.info('Assets embedded in config object: '+configObj.widget.platform[0].icon.length);
+			// display.info('Assets embedded in config object: '+configObj.widget.platform[0].icon.length);
 			return configObj;
 		})
 		.then(writeToFile)
