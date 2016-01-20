@@ -14,10 +14,6 @@ var display = require('./util').display;
 var RESOURCES_DIR = constants.RESOURCES_DIR;
 var IOS_DIR = constants.IOS_DIR;
 var AND_DIR = constants.ANDR_DIR;
-// var AND_PREFIX_ICON = constants.AND_PREFIX_ICON;
-// var AND_PREFIX_SPLASH_LAND = constants.AND_PREFIX_SPLASH_LAND;
-// var AND_PREFIX_SPLASH_PORT = constants.AND_PREFIX_SPLASH_PORT;
-
 
 /**
  * Check which platforms are added to the project and return their splash screen names and sizes.
@@ -265,19 +261,9 @@ var getPlatforms = function() {
 			}
 		]
 	});
-	// TODO: add all platforms
+	// TODO: add remainder platforms
 	deferred.resolve(platforms);
 	return deferred.promise;
-};
-
-/**
- * Check whether or not platform info is present for iOS
- * @param  {Array} platforms the detected platforms
- * @return {Array} the array of matched items 
- */
-var checkForIOS = function(platforms) {
-	var platform = _(platforms).where({'$': {"name": "ios"}});
-	return platform;
 };
 
 
@@ -395,6 +381,10 @@ var getAssetsFromSettings = function(platform, type) {
 };
 
 
+/**
+ * Get all item assets from platform settings above
+ * @return {Promise} A promise resolve with an array of assets lists
+ */
 var getAllAssets = function() {
 	// display.info('Getting all settings assets...');
 	var iosIcon = getAssetsFromSettings('ios', 'icon');
@@ -404,6 +394,7 @@ var getAllAssets = function() {
 
 	return Q.all([iosIcon, iosSplash, andrIcon, andrSplash]);
 };
+
 
 /**
  * Write the resulting xml from the (updated) config object to a file

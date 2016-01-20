@@ -80,8 +80,7 @@ var makeResourceDir = function(platforms, resource) {
 		return deferred.promise;
 	};
 
-	mkdirAsync = Q.denodeify(fs.mkdir);
-	var accessAsync = Q.denodeify(fs.access);
+	mkdirAsync = Q.denodeify(fs.mkdir); // lets try this
 	var promises = [];
 
 	_(platforms).where({
@@ -96,7 +95,6 @@ var makeResourceDir = function(platforms, resource) {
 			else 
 				return;
 		});		
-		// promises.push(promise);
 	});
 
 	return Q.all(promises);
@@ -140,7 +138,6 @@ var generateSplash = function(platform, splash) {
  */
 var generateIcon = function(platform, icon) {
 	var deferred = Q.defer();
-	// display.info('Icon '+settings.ICON_FILE+ ' -> '.cyan+platform.iconPath+'/'+icon.name);
 	ig.crop({
 		srcPath: settings.ICON_FILE,
 		dstPath: platform.iconPath +'/'+icon.name,
@@ -344,54 +341,12 @@ var configFileExists = function() {
 };
 
 
-
-/**
- * Update the config.xml file with the resources markup if it doesn't
- *
- * @return {Promise} resolve if update was ok, false otherwise 
- *
-var updateConfigFile = function() {
-	var deferred = Q.defer();
-	var parser = new xml2js.Parser();
-	fs.readFile(settings.CONFIG_FILE, function(err, data) {
-		if (err) {
-			display.error(err);
-			deferred.reject(err);
-		}
-		parser.parseString(data, function(err, result) {
-			if (err) {
-				display.error(err);
-				deferred.reject(err);
-			}
-			var platforms = result.widget.platform;
-			// check if any platform has attr name=ios|android
-			// for
-			
-			deferred.resolve(true);
-		});
-	});
-
-	return deferred.promise;
-};
-*/
-
-display.header('Checking Project & Splash');
-
-var version = function() {
-	var deferred = Q.defer();
-	setTimeout(function() {
-		// console.log('deferred resolve'.underline.red);
-		deferred.resolve('0.1');
-	}, 1000);
-
-	// console.log(colors.blue('phonegap-res')+' '+colors.yellow('enhanced version'));
-	return deferred.promise;
-}; // EO version function
-
-
-
 var iconsGeneration = function() {
-	getProjectName()
+	display.header('Checking Project & Icon');
+	atLeastOnePlatformFound()
+	.then(validSplashExists)
+	.then(configFileExists)
+	.then(getProjectName)
 	.then(getPlatforms)
 	.then(generateIcons)
 	.catch(function(err) {
@@ -405,6 +360,7 @@ var iconsGeneration = function() {
 
 
 var splashGeneration = function() {
+	display.header('Checking Project & Splash');
 	atLeastOnePlatformFound()
 	.then(validSplashExists)
 	.then(configFileExists)
@@ -422,6 +378,7 @@ var splashGeneration = function() {
 
 
 var main = function() {
+	display.header('Checking Project & Resources');
 	atLeastOnePlatformFound()
 	.then(validSplashExists)
 	.then(configFileExists)
@@ -460,7 +417,6 @@ var main = function() {
 };
 
 module.exports = {
-	version: version,
 	main: main,
 	icons: iconsGeneration,
 	splashes: splashGeneration,
@@ -474,30 +430,3 @@ module.exports = {
 	generateIcons: generateIcons
 };
 
-/* MAIN //////////////////
-atLeastOnePlatformFound()
-	.then(validSplashExists)
-	.then(configFileExists)
-	.then(getProjectName)
-	.then(getPlatforms)
-	.then(generateSplashes)
-	.catch(function(err) {
-		if (err) {
-			console.log(err);
-		}
-	}).then(function() {
-		console.log('');
-	})
-	.then(validIconExists)
-	.then(configFileExists)
-	.then(getProjectName)
-	.then(getPlatforms)
-	.then(generateIcons)
-	.catch(function(err) {
-		if (err) {
-			console.log(err);
-		}
-	}).then(function() {
-		console.log('');
-	});
-*/
