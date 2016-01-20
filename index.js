@@ -7,6 +7,22 @@ var colors = require('colors');
 var _ = require('underscore');
 var Q = require('q');
 
+var constants = require('./util').constants;
+var platformsMngr = require('./platforms-mngr');
+
+var settings = require('./util').settings;
+
+var RESOURCES_DIR = constants.RESOURCES_DIR;
+var IOS_DIR = constants.IOS_DIR;
+var IOS_PREFIX_ICON = constants.IOS_PREFIX_ICON;
+var IOS_PREFIX_SPLASH = constants.IOS_PREFIX_SPLASH;
+var AND_DIR = constants.AND_DIR;
+var AND_PREFIX_ICON = constants.AND_PREFIX_ICON;
+var AND_PREFIX_SPLASH_LAND = constants.AND_PREFIX_SPLASH_LAND;
+var AND_PREFIX_SPLASH_PORT = constants.AND_PREFIX_SPLASH_PORT;
+
+
+/*
 var RESOURCES_DIR = './resources'; // originally www
 var IOS_DIR = RESOURCES_DIR+'/ios';
 var IOS_PREFIX_ICON = 'icon';
@@ -16,6 +32,15 @@ var AND_PREFIX_ICON = 'drawable-';
 var AND_PREFIX_SPLASH_LAND = 'drawable-land';
 var AND_PREFIX_SPLASH_PORT = 'drawable-port';
 
+**
+ * @var {Object} settings - names of the config file and of the splash/icon image
+ * TODO: add option to get these values as CLI params
+ *
+var settings = {};
+settings.CONFIG_FILE = 'config.xml';
+settings.SPLASH_FILE = RESOURCES_DIR+'/splash.png';
+settings.ICON_FILE = RESOURCES_DIR+'/icon.png';
+*/
 
 /**
  * Check which platforms are added to the project and return their splash screen names and sizes
@@ -23,7 +48,9 @@ var AND_PREFIX_SPLASH_PORT = 'drawable-port';
  * @param  {String} projectName
  * @return {Promise} resolves with an array of platforms
  */
-var getPlatforms = function(projectName) {
+var getPlatforms = platformsMngr.getPlatforms;
+
+var getPlatformsOld = function(projectName) {
 	var deferred = Q.defer();
 	var platforms = [];
 	platforms.push({
@@ -57,7 +84,7 @@ var getPlatforms = function(projectName) {
 				width: 2048,
 				height: 1496
 			}, {
-				name: 'Default-Landscape@2x~ipad.png',
+				name: 'Default-Portrait@2x~ipad.png',
 				width: 1536,
 				height: 2008
 			}, {
@@ -270,18 +297,10 @@ var getPlatforms = function(projectName) {
 };
 
 
-/**
- * @var {Object} settings - names of the config file and of the splash/icon image
- * TODO: add option to get these values as CLI params
- */
-var settings = {};
-settings.CONFIG_FILE = 'config.xml';
-settings.SPLASH_FILE = RESOURCES_DIR+'/splash.png';
-settings.ICON_FILE = RESOURCES_DIR+'/icon.png';
-
+var display = require('./util').display;
 /**
  * @var {Object} console utils
- */
+ *
 var display = {};
 display.success = function(str) {
 	str = '✓  '.green + str;
@@ -300,6 +319,7 @@ display.info = function(str) {
 	str = 'i  '.yellow + str;
 	console.log('  '+str);
 };
+*/
 
 /**
  * read the config file and get the project name
@@ -320,6 +340,7 @@ var getProjectName = function() {
 				deferred.reject(err);
 			}
 			var projectName = result.widget.name[0];
+			// display.success(JSON.stringify(result));
 			display.success(projectName);
 			deferred.resolve(projectName);
 		});
@@ -363,7 +384,7 @@ var generateSplash = function(platform, splash) {
  */
 var generateIcon = function(platform, icon) {
 	var deferred = Q.defer();
-	display.info('Icon '+settings.ICON_FILE+ ' -> '.cyan+platform.iconPath+'/'+icon.name);
+	// display.info('Icon '+settings.ICON_FILE+ ' -> '.cyan+platform.iconPath+'/'+icon.name);
 	ig.crop({
 		srcPath: settings.ICON_FILE,
 		dstPath: platform.iconPath +'/'+icon.name,
@@ -559,18 +580,51 @@ var configFileExists = function() {
 	return deferred.promise;
 };
 
+
+
+/**
+ * Update the config.xml file with the resources markup if it doesn't
+ *
+ * @return {Promise} resolve if update was ok, false otherwise 
+ *
+var updateConfigFile = function() {
+	var deferred = Q.defer();
+	var parser = new xml2js.Parser();
+	fs.readFile(settings.CONFIG_FILE, function(err, data) {
+		if (err) {
+			display.error(err);
+			deferred.reject(err);
+		}
+		parser.parseString(data, function(err, result) {
+			if (err) {
+				display.error(err);
+				deferred.reject(err);
+			}
+			var platforms = result.widget.platform;
+			// check if any platform has attr name=ios|android
+			// for
+			
+			deferred.resolve(true);
+		});
+	});
+
+	return deferred.promise;
+};
+*/
+
 display.header('Checking Project & Splash');
 
 var version = function() {
 	var deferred = Q.defer();
 	setTimeout(function() {
-		console.log('deferred resolve'.underline.red);
+		// console.log('deferred resolve'.underline.red);
 		deferred.resolve('0.1');
 	}, 1000);
 
 	// console.log(colors.blue('phonegap-res')+' '+colors.yellow('enhanced version'));
 	return deferred.promise;
-};
+}; // EO version function
+
 
 
 var iconsGeneration = function() {
