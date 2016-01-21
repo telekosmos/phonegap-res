@@ -1,38 +1,49 @@
-# phonegap-splash
+# Splash'n'Icons
 
-phonegap-splash has been abandoned in favour of phonegap-res. phonegap-res can generate both icons and splash screens. Please move forward with phonegap-res. Thank you!
+__splash'n'icons__ combine together to get you rid of the concern of resources/assets generation for a Cordova/Phonegap project.
+Strongly based, inspired and forked from [phonegap-res](https://github.com/macdonaldr93/phonegap-res) :+1:
 
-# phonegap-res
+## Features
+- Automatic splash screen & icon generator for PhoneGap/Cordova 5+.
+- Update `config.xml` file with the markup for the generated resources and platforms.
+- Create the `icon` and `splash` folders into the `resources` folder for the right platforms if they don't exist.
 
-Automatic splash screen & icon generator for PhoneGap. Create a splash screen (2208x2208) & icon (1024x1024) once in the www folder of your phonegap project and use phonegap-res to automatically crop and copy it for all the platforms your project supports (currenty works with iOS and Android).
+## Requirements
+- Create a splash screen (`splash.png` 2208x2208) & icon (`icon.png` 192x192) in the `resources` folder of your phonegap/cordova project
+- Create root resources folder for the platforms your project supports (this is `resouces/ios` and/or `resources/android`)
+- Cordova's `config.xml` file must exist in the root folder
+- use `splash-n-icons` command to automatically crop and copy it for all the platforms your project supports (currenty works with iOS and Android).
+- No need to have a platform installed in your project
 
-### Installation
 
-    sudo npm install -g phonegap-res
+## Installation
 
-### Usage
+    sudo npm install -g splash-n-icons
 
-Create a ```splash.png``` & ```icon.png``` file in the www folder of your phonegap project and run:
+## Usage
 
-    phonegap-res
+Create a ```splash.png``` & ```icon.png``` file in the `resources` folder of your phonegap/cordova project and run:
 
-### Requirements
+    splash-n-icons
+
+### Third party requirements
 
 - ImageMagick
 
-Install on a Mac:
+Install on a Mac using `homebrew`:
 
     brew update
     brew install imagemagick
-
-- At least one platform was added to your project ([phonegap platforms docs](http://phonegap.apache.org/docs/en/3.4.0/guide_platforms_index.md.html#Platform%20Guides))
-- PhoneGap's config.xml file must exist in the root folder ([phonegap config.xml docs](http://phonegap.apache.org/docs/en/3.4.0/config_ref_index.md.html#The%20config.xml%20File))
-
+or using `ports`:
+	
+	port selfupdate
+	port install imagemagick
+	
 ### License
 
 MIT
 
-### Future Development
+### Future?
 
-- Add arguments to independently generate icons or splash screens.
-- Add other platforms.
+- Generate icons __or__ splash screens.
+- Add more platforms.
