@@ -10,14 +10,6 @@ chai.use(chaiAsPromised);
 
 describe('splashcon', function() {
 
-	describe('basic functions', function() {
-		it('should get the version', function() {
-			should.exist(splashcon.version);
-			return splashcon.version().should.eventually.be.eql('0.1');
-		});
-	});
-
-
 	describe('should check files existence', function() {
 		var existsStub, existsSyncStub;
 		beforeEach(function() {
@@ -31,12 +23,7 @@ describe('splashcon', function() {
 			// fs.existsSync.restore();
 		});
 
-		it('for test', function() {
-			var promise = splashcon.version();
-			// promise.should.be.fulfilled;
-			return promise.should.eventually.equal('0.1');
-		});
-
+		
 		it('for config.xml', function() {
 			
 		});
@@ -50,28 +37,4 @@ describe('splashcon', function() {
 		});
 	});
 
-
-	describe('should check project props', function() {
-		it('for project name', function() {
-
-		});
-
-		it('for iOS platform registered', function() {
-
-		});
-
-		it('for android platform registered', function() {
-
-		});
-	});
-
-	describe('should generate', function() {
-		it('splashes from splash.png', function() {
-
-		});
-
-		it('icons from icon.png', function() {
-
-		});
-	});
 });
