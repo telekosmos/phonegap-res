@@ -1,31 +1,34 @@
 {
-  "name": "phonegap-res",
-  "version": "0.2.1",
-  "description": "Automatic splash screen & icon cropping for PhoneGap",
+  "name": "splash-n-icons",
+  "version": "0.1.0",
+  "description": "Automatic splash screen & icon cropping generation for Cordova/PhoneGap/Ionic",
   "main": "index.js",
   "preferGlobal": "true",
   "directories": {
     "bin": "./bin"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/macdonaldr93/phonegap-res.git"
+    "url": "https://github.com/telekosmos/splash-n-icons.git"
   },
   "keywords": [
     "phonegap",
     "splash",
     "icon",
-    "crop"
+    "crop",
+    "cordova",
+    "ionic",
+    "generator"
   ],
-  "author": "Ryan Macdonald",
+  "author": "telekosmos strongly based and inspired by Ryan Macdonald's work",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/macdonaldr93/phonegap-res/issues"
+    "url": "https://github.com/telekosmos/splash-n-icons.git/issues"
   },
-  "homepage": "https://github.com/macdonaldr93/phonegap-res",
+  "homepage": "https://github.com/telekosmos/splash-n-icons.git",
   "dependencies": {
     "imagemagick": "^0.1.3",
     "underscore": "^1.6.0",

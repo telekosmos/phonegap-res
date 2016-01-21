@@ -44,6 +44,6 @@ or using `ports`:
 MIT
 
 ### Future?
-
+- Support cli arguments
 - Generate icons __or__ splash screens.
 - Add more platforms.
