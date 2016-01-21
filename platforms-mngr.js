@@ -126,6 +126,18 @@ var getPlatforms = function() {
 				width: 640,
 				height: 1136
 			}, {
+				name: 'Default-667h@2x.png',
+				width: 750,
+				height: 1334
+			}, {
+				name: 'Default-Portratit-736h@3x.png',
+				width: 1242,
+				height: 2208
+			}, {
+				name: 'Default-Landscape-736h@3x.png',
+				width: 2208,
+				height: 1242
+			}, {
 				name: 'Default-Landscape~ipad.png',
 				width: 1024,
 				height: 768
@@ -136,28 +148,16 @@ var getPlatforms = function() {
 			}, {
 				name: 'Default-Landscape@2x~ipad.png',
 				width: 2048,
-				height: 1496
+				height: 1536
 			}, {
 				name: 'Default-Portrait@2x~ipad.png',
 				width: 1536,
-				height: 2008
-			}, {
-				name: 'Default-667h.png',
-				width: 750,
-				height: 1334
-			}, /*{
+				height: 2048
+			} /*{
 				name: 'screen-iphone6-landscape.png',
 				width: 1334,
 				height: 750
-			}, */ {
-				name: 'Default-736h.png',
-				width: 1242,
-				height: 2208
-			}, {
-				name: 'Default-Landscape-736h.png',
-				width: 2208,
-				height: 1242
-			},
+			}, */ 
 		]
 	});
 
