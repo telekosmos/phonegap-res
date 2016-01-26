@@ -4,7 +4,7 @@ var RESOURCES_DIR = 'resources'; // originally www
 
 /**
  * @var {Object} settings - names of the config file and of the splash/icon image
- * TODO: add option to get these values as CLI params
+ * TODO:10 add option to get these values as CLI params
  */
 var settings = {};
 settings.CONFIG_FILE = './config.xml';
@@ -42,7 +42,7 @@ module.exports = {
 		ANDR_DIR: RESOURCES_DIR+'/android',
 		// AND_PREFIX_ICON: 'drawable-',
 		// AND_PREFIX_SPLASH_LAND: 'drawable-land',
-		// AND_PREFIX_SPLASH_PORT: 'drawable-port',	
+		// AND_PREFIX_SPLASH_PORT: 'drawable-port',
 		ANDR_ICON_DIR: RESOURCES_DIR+'/android/icon',
 		ANDR_SPLASH_DIR: RESOURCES_DIR+'/android/splash'
 	},
