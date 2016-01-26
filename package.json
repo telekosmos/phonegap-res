@@ -1,6 +1,6 @@
 {
   "name": "splash-n-icons",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Automatic splash screen & icon cropping generation for Cordova/PhoneGap/Ionic",
   "main": "index.js",
   "preferGlobal": "true",

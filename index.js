@@ -385,41 +385,7 @@ var splashGeneration = function() {
 	});
 };
 
-// TODO:0 complete config.xml upon adding splashes only for Splashes
 var main = function() {
-	console.log(' '+`splash'n'icons`.yellow.underline);
-	display.header('Checking Project & Resources');
-	atLeastOnePlatformFound()
-	.then(validIconExists)
-	.then(configFileExists)
-	.then(getProjectName)
-	.then(getPlatforms)
-	.then(generateIcons)
-	.then(platformsMngr.updateConfigFile)
-	.then(function() {
-		display.success('Icons generation ended'.green);
-	})
-	.catch(function(err) {
-		if (err)
-			display.error(err);
-	})
-	.then(validSplashExists)
-	.then(configFileExists)
-	.then(getProjectName)
-	.then(getPlatforms)
-	.then(generateSplashes)
-	.then(platformsMngr.updateConfigFile)
-	.then(function() {
-		display.success('Splashes generation ended'.green);
-	})
-	.catch(function(err) {
-		if (err) {
-			display.error(err);
-		}
-	});
-};
-
-main = function() {
 	console.log(' '+`splash'n'icons`.yellow.underline+' (short)');
 	display.header('Checking Project & Resources');
 	iconsGeneration()
