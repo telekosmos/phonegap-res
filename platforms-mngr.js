@@ -24,23 +24,7 @@ var AND_DIR = constants.ANDR_DIR;
 var getPlatforms = function() {
 	var deferred = Q.defer();
 	var platforms = [];
-	/*
-	Android Splash resolutions:
-	ldpi = 320 x 426
-	mdpi = 320 X 470
-	hdpi = 480 x 640
-	xhdpi = 720 x 960
-	xxhdpi = 1080 X 1440
 
-	Android Icon resolutions:
-	192px (xxxhdpi)
-	144px (xxhdpi)
-	96px (xhdpi)
-	72px (hdpi)
-	48px (mdpi)
-	36px (ldpi)
-	512x512 pixel - only used in Android Market; resized to various sizes
- 	*/
 	platforms.push({
 		name: 'ios',
 		// TODO:30 use async fs.exists
@@ -118,9 +102,17 @@ var getPlatforms = function() {
 				width: 320,
 				height: 480
 			}, {
+				name: 'Default-Landscape~iphone.png',
+				width: 480,
+				height: 320
+			}, {
 				name: 'Default@2x~iphone.png',
 				width: 640,
 				height: 960
+			}, {
+				name: 'Default-Portrait~ipad.png',
+				width: 768,
+				height: 1024
 			}, {
 				name: 'Default-568h@2x~iphone.png',
 				width: 640,
@@ -129,6 +121,10 @@ var getPlatforms = function() {
 				name: 'Default-667h@2x.png',
 				width: 750,
 				height: 1334
+			}, {
+				name: 'Default-Landscape-667h@2x.png',
+				width: 1334,
+				height: 750
 			}, {
 				name: 'Default-Portratit-736h@3x.png',
 				width: 1242,
@@ -153,14 +149,26 @@ var getPlatforms = function() {
 				name: 'Default-Portrait@2x~ipad.png',
 				width: 1536,
 				height: 2048
-			} /*{
-				name: 'screen-iphone6-landscape.png',
-				width: 1334,
-				height: 750
-			}, */
+			}
 		]
 	});
+	/*
+	Android Splash resolutions:
+	ldpi = 320 x 426
+	mdpi = 320 X 470
+	hdpi = 480 x 640
+	xhdpi = 720 x 960
+	xxhdpi = 1080 X 1440
 
+	Android Icon resolutions:
+	192px (xxxhdpi)
+	144px (xxhdpi)
+	96px (xhdpi)
+	72px (hdpi)
+	48px (mdpi)
+	36px (ldpi)
+	512x512 pixel - only used in Android Market; resized to various sizes
+ 	*/
 	platforms.push({
 		name: 'android',
 		isAdded: fs.existsSync(AND_DIR), // fs.existsSync(AND_DIR+'/splash') && fs.existsSync(AND_DIR+'/icon'),
@@ -428,7 +436,6 @@ var convertAllAssets = function(assets) {
 };
 
 
-// TODO: split up the updateConfigFile to update icons and splashes separately
 /**
  * Update the config.xml file with the resources markup if it didn't.
  * Parse config.xml -> configObj
