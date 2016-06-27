@@ -24,27 +24,12 @@ var AND_DIR = constants.ANDR_DIR;
 var getPlatforms = function() {
 	var deferred = Q.defer();
 	var platforms = [];
-	/*
-	Android Splash resolutions:
-	ldpi = 320 x 426
-	mdpi = 320 X 470
-	hdpi = 480 x 640
-	xhdpi = 720 x 960
-	xxhdpi = 1080 X 1440
 
-	Android Icon resolutions:
-	192px (xxxhdpi)
-	144px (xxhdpi)
-	96px (xhdpi)
-	72px (hdpi)
-	48px (mdpi)
-	36px (ldpi)
-	512x512 pixel - only used in Android Market; resized to various sizes
- 	*/
 	platforms.push({
 		name: 'ios',
-		// TODO: use async fs.exists
+		// TODO:30 use async fs.exists
 		isAdded: fs.existsSync(IOS_DIR), // fs.existsSync(IOS_DIR+'/splash') && fs.existsSync(IOS_DIR+'/icon'),
+		resourceRoot: IOS_DIR,
 		splashPath: IOS_DIR+'/splash',
 		iconPath: IOS_DIR+'/icon',
 		icon: [{
@@ -118,13 +103,37 @@ var getPlatforms = function() {
 				width: 320,
 				height: 480
 			}, {
+				name: 'Default-Landscape~iphone.png',
+				width: 480,
+				height: 320
+			}, {
 				name: 'Default@2x~iphone.png',
 				width: 640,
 				height: 960
 			}, {
+				name: 'Default-Portrait~ipad.png',
+				width: 768,
+				height: 1024
+			}, {
 				name: 'Default-568h@2x~iphone.png',
 				width: 640,
 				height: 1136
+			}, {
+				name: 'Default-667h@2x.png',
+				width: 750,
+				height: 1334
+			}, {
+				name: 'Default-Landscape-667h@2x.png',
+				width: 1334,
+				height: 750
+			}, {
+				name: 'Default-Portratit-736h@3x.png',
+				width: 1242,
+				height: 2208
+			}, {
+				name: 'Default-Landscape-736h@3x.png',
+				width: 2208,
+				height: 1242
 			}, {
 				name: 'Default-Landscape~ipad.png',
 				width: 1024,
@@ -136,34 +145,35 @@ var getPlatforms = function() {
 			}, {
 				name: 'Default-Landscape@2x~ipad.png',
 				width: 2048,
-				height: 1496
+				height: 1536
 			}, {
 				name: 'Default-Portrait@2x~ipad.png',
 				width: 1536,
-				height: 2008
-			}, {
-				name: 'Default-667h.png',
-				width: 750,
-				height: 1334
-			}, /*{
-				name: 'screen-iphone6-landscape.png',
-				width: 1334,
-				height: 750
-			}, */ {
-				name: 'Default-736h.png',
-				width: 1242,
-				height: 2208
-			}, {
-				name: 'Default-Landscape-736h.png',
-				width: 2208,
-				height: 1242
-			},
+				height: 2048
+			}
 		]
 	});
+	/*
+	Android Splash resolutions:
+	ldpi = 320 x 426
+	mdpi = 320 X 470
+	hdpi = 480 x 640
+	xhdpi = 720 x 960
+	xxhdpi = 1080 X 1440
 
+	Android Icon resolutions:
+	192px (xxxhdpi)
+	144px (xxhdpi)
+	96px (xhdpi)
+	72px (hdpi)
+	48px (mdpi)
+	36px (ldpi)
+	512x512 pixel - only used in Android Market; resized to various sizes
+ 	*/
 	platforms.push({
 		name: 'android',
 		isAdded: fs.existsSync(AND_DIR), // fs.existsSync(AND_DIR+'/splash') && fs.existsSync(AND_DIR+'/icon'),
+		resourceRoot: AND_DIR,
 		splashPath: AND_DIR+'/splash',
 		iconPath: AND_DIR+'/icon',
 		icon: [{
@@ -261,7 +271,7 @@ var getPlatforms = function() {
 			}
 		]
 	});
-	// TODO: add remainder platforms
+	// TODO:20 add remainder platforms
 	deferred.resolve(platforms);
 	return deferred.promise;
 };
@@ -304,13 +314,13 @@ var convert4xml = function(theList) {
 		return newObj;
 	});
 	deferred.resolve(newList);
-	
+
 	return deferred.promise;
 };
 
 
 /**
- * Just parses the config.xml file 
+ * Just parses the config.xml file
  * @return {Promise} A promise which will be resolve to a POJO with the xml structure
  */
 var parseConfigFile = function() {
@@ -350,7 +360,7 @@ var getAssetsFromConfig = function(configObj, platform, type) {
 		list = assets[0][type];
 		defer.resolve(list);
 	}
-	else 
+	else
 		defer.reject();
 
 	return defer.promise;
@@ -358,25 +368,23 @@ var getAssetsFromConfig = function(configObj, platform, type) {
 
 
 /**
- * Gets the list of right assets from the predefined platforms
+ * Gets the list of right assets from the predefined platforms and resource type
  * @param  {String} platform One of android/ios
  * @param  {String} type One of icon/splash
- * @return {Promise} a promise which will be resolved with the list of assets         
+ * @return {Promise} a promise which will be resolved with the list of assets
  */
 var getAssetsFromSettings = function(platform, type) {
 	var deferred = Q.defer();
 	getPlatforms().then(function(platforms) {
 		var chosen = _(platforms).where({'name': platform});
 		var list = chosen[0][type];
-	 	// console.log('list: ' +JSON.stringify(list));
-		// deferred.resolve(list);	
 		deferred.resolve({
 			list: list,
 			type: type,
 			platform: platform
 		});
 	});
-	
+
 	return deferred.promise;
 };
 
@@ -423,13 +431,12 @@ var writeToFile = function(configObj) {
  * @return {Promise} A promise resolved with all results or rejected if one promise is reject
  */
 var convertAllAssets = function(assets) {
-	// display.info('Converting all '+assets.length+' assets');
 	var promiseArray = assets.map(function(asset) {
 		return convert4xml(asset);
 	});
-
 	return Q.all(promiseArray);
 };
+
 
 /**
  * Update the config.xml file with the resources markup if it didn't.
@@ -441,77 +448,78 @@ var convertAllAssets = function(assets) {
  * Get assets for android/splash; convert to xml2js JSON format
  * Make JSON for platform and replace in configObj
  * Write to file the new JSON
- * 
- * @return {Promise} resolve if update was ok, false otherwise 
+ *
+ * @param {Object} resources An object such {platforms: [...], type: 'icon|splash' }
+ * @return {Promise} resolve if update was ok, false otherwise
  */
-var updateConfigFile = function() {
+var updateConfigFile = function(resources) {
 	var configObj;
-	parseConfigFile()
+	return parseConfigFile()
 		.then(function(cfgObj) {
-			// display.info('config.xml parsed...');
 			configObj = cfgObj;
-			if (configObj.widget.platform)
-				delete configObj.widget.platform;
-
 			return getAllAssets();
 		})
 		.then(convertAllAssets)
-		.then(function(newAssets) {
-			configObj.widget.platform = [{
-				$: {
-					name: 'ios'
-				},
-				icon: [],
-				splash: []
-			}, {
-				$: {
-					name: 'android'
-				},
-				icon: [],
-				splash: []
-			}];
-			newAssets.forEach(function(newAsset, allAssets) {
-				if (newAsset[0].$.src.indexOf('android') != -1) {
-					if (newAsset[0].$.src.indexOf('icon') != -1) {
-						configObj.widget.platform[1].icon = newAsset;
-					}
-					else
-						configObj.widget.platform[1].splash = newAsset;	
+		.then(function(newAssets) { // JSON object formatted to be used by xml2js
+			/*
+				configObj.widget.platform = [{
+					$: {
+						name: 'ios'
+					},
+					icon: [],
+					splash: []
+				}, {
+					$: {
+						name: 'android'
+					},
+					icon: [],
+					splash: []
+				}];
+			*/
+			resources.platforms.forEach(function(platform) {
+				var configPlatform;
+				if (!!configObj.widget.platform) {
+				 	configPlatform = configObj.widget.platform.filter(function(el) {
+						return el.$.name === platform;
+					})[0];
 				}
 				else {
-					if (newAsset[0].$.src.indexOf('icon') != -1) {
-						configObj.widget.platform[0].icon = newAsset;
-					}
-					else
-						configObj.widget.platform[0].splash = newAsset;		
+					configObj.widget.platform = [];
 				}
-			});
-			// display.info('Assets embedded in config object: '+configObj.widget.platform[0].icon.length);
+
+				if (configPlatform === undefined) {
+					var newLength = configObj.widget.platform.push({
+						$: {
+							name: platform
+						},
+						icon: [],
+						splash: []
+					});
+					configPlatform = configObj.widget.platform[newLength-1];
+				}
+				newAssets.forEach(function(newAsset) {
+					if (newAsset[0].$.src.indexOf(platform) != -1) {
+						if (newAsset[0].$.src.indexOf(resources.type) != -1) {
+							configPlatform[resources.type] = newAsset;
+						}
+					}
+				});
+			}); // EO loop platforms with generated resources
+			// display.info('Assets embedded in config object: '+JSON.stringify(configObj.widget.platform));
 			return configObj;
 		})
-		.then(writeToFile)
-		.catch(function(err) {
-			if (err) {
-				console.log(err);
-			}
-		})
-		.then(function() {
-			display.success('SUCCESS!!');
-		});
+		.then(writeToFile);
 };
 
 
-var testPlatforms = function(msg) {
-	var deferred = Q.defer();
-	setTimeout(function() {
-		deferred.resolve(msg.toUpperCase());
-	}, 500);
 
-	return deferred.promise;
+var testMain = function() {
+	var resources = {platforms: ['ios', 'android'], type: 'icon'};
+	updateConfigFile(resources);
 };
-
 
 module.exports = {
+	test: testMain,
 	updateConfigFile: updateConfigFile,
 	parseConfigFile: parseConfigFile,
 	getAssetsFromConfig: getAssetsFromConfig,
@@ -520,5 +528,4 @@ module.exports = {
 	convert4xml: convert4xml,
 	convertAllAssets: convertAllAssets,
 	getPlatforms: getPlatforms,
-	testPlatforms: testPlatforms
 };

@@ -14,16 +14,6 @@ chai.use(require('chai-things'));
 
 describe('platformMngr', function() {
 
-	describe('basic functions', function() {
-		it('should get the test', function() {
-			should.exist(platformMngr.testPlatforms);
-			var promise = platformMngr.testPlatforms('crap');
-			return promise.should.eventually.become('CRAP');
-			// platformMngr.testPlatforms('crap').should.eventually.have.length(-1);
-		});
-		
-	});
-
 	describe('parse config.xml', function() {
 		var promise;
 		beforeEach(function() {
@@ -91,11 +81,11 @@ describe('platformMngr', function() {
 		var promiseIOS, promiseAndroid;
 		beforeEach(function() {
 			promiseIOS = platformMngr.getAssetsFromSettings('ios', 'icon');
-			promiseAndroid = platformMngr.getAssetsFromSettings('android', 'splash');				
+			promiseAndroid = platformMngr.getAssetsFromSettings('android', 'splash');
 		});
 
 		it ('should resolve to assets', function() {
-			return promiseIOS.should.eventually.to.be.fulfilled && 
+			return promiseIOS.should.eventually.to.be.fulfilled &&
 				promiseAndroid.should.eventually.to.be.fulfilled;
 		});
 
@@ -105,13 +95,13 @@ describe('platformMngr', function() {
 			return promiseIOS.then(function(theList) {
 				should.exist(theList);
 				theList.should.have.property('type', 'icon');
-				
+
 				var list = theList.list;
 				list.should.all.have.property('width');
 				list.should.all.have.property('height');
 				list.should.all.have.property('name');
 				list.should.all.be.instanceof(Object);
-			});			
+			});
 		});
 
 		it('should retrieve a list of splashes from Android platform', function() {
@@ -123,7 +113,7 @@ describe('platformMngr', function() {
 				list.should.all.have.property('width');
 				list.should.all.have.property('height');
 				list.should.all.have.property('name');
-			});			
+			});
 		});
 
 		it('should retrieve all predefined assets', function() {
@@ -142,7 +132,7 @@ describe('platformMngr', function() {
 	describe('predefined assets', function() {
 		var promiseIcon, promiseSplash, promiseConvert,
 			iconsMock = require('./common').iosIcons,
-			splashAndr = require('./common').andrSplashes;
+			splashAndrMock = require('./common').andrSplashes;
 
 		beforeEach(function() {
 			promiseIcon = platformMngr.getAssetsFromSettings('ios', 'icon');
@@ -150,7 +140,7 @@ describe('platformMngr', function() {
 		});
 
 		it ('should resolve to assets', function() {
-			return promiseIcon.should.eventually.to.be.fulfilled && 
+			return promiseIcon.should.eventually.to.be.fulfilled &&
 				promiseSplash.should.eventually.to.be.fulfilled;
 		});
 
@@ -170,8 +160,8 @@ describe('platformMngr', function() {
 		});
 
 		it('should convert splash to xml2js format', function() {
-			should.exist(splashAndr);
-			promiseConvert = platformMngr.convert4xml(splashAndr);
+			should.exist(splashAndrMock);
+			promiseConvert = platformMngr.convert4xml(splashAndrMock);
 			return promiseConvert.then(function(list) {
 				should.exist(list);
 				list.should.be.instanceof(Array);
@@ -184,7 +174,7 @@ describe('platformMngr', function() {
 		});
 
 		it('should convert all assets', function() {
-			var allAssets = [iconsMock, splashAndr];
+			var allAssets = [iconsMock, splashAndrMock];
 			promiseConvert = platformMngr.convertAllAssets(allAssets);
 			return promiseConvert.then(function(newAssets) {
 				should.exist(newAssets);
@@ -201,7 +191,7 @@ describe('platformMngr', function() {
 
 
 
-	// TODO
+	// TODO:
 	describe('missing items fix', function() {
 		if('should get a list of missing icons', function() {
 

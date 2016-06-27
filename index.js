@@ -34,7 +34,7 @@ var getPlatforms = platformsMngr.getPlatforms;
 var display = require('./util').display;
 
 /**
- * read the config file and get the project name
+ * Read the config file and get the project name
  *
  * @return {Promise} resolves to a string - the project's name
  */
@@ -46,6 +46,7 @@ var getProjectName = function() {
 			display.error(err);
 			deferred.reject(err);
 		}
+		// display.info(settings.CONFIG_FILE+' data: '+data+' & err: '+err);
 		parser.parseString(data, function(err, result) {
 			if (err) {
 				display.error(err);
@@ -53,7 +54,7 @@ var getProjectName = function() {
 			}
 			var projectName = result.widget.name[0];
 			// display.success(JSON.stringify(result));
-			display.success(projectName);
+			display.success('Project name: '+projectName);
 			deferred.resolve(projectName);
 		});
 	});
@@ -62,10 +63,31 @@ var getProjectName = function() {
 
 
 /**
- * Make the directories for icons and resources
+ * Make the directories for icons and splashes
+ * 
+ * 
+ * /*
+	_(platforms).where({
+		isAdded: false
+	}).forEach(function(platform) {
+		var pathPlatform = platform.name == 'ios'? IOS_DIR: AND_DIR;
+		fs.access(pathPlatform, fs.R_OK|fs.W_OK, function(err) {
+			if (err) {
+				display.info('Creating resource folder '+pathPlatform.yellow);
+				platformsPromises.push(mkdirAsync(pathPlatform));
+				platform.isAdded = true;
+			}
+			else
+				return;
+		})
+	});
+*
+	// return Q.all(platformPromises).then(function() {
+
+ *
  * @param  {Array} platforms List of platforms
  * @param  {String} resource Type of resouce (one of icon, splash)
- * @return {[type]}           [description]
+ * @return {Promise} A promise resolved with nothing (as mkdir returns undefined)
  */
 var makeResourceDir = function(platforms, resource) {
 	var readFileAsync = Q.denodeify(fs.readFile);
@@ -82,21 +104,21 @@ var makeResourceDir = function(platforms, resource) {
 
 	mkdirAsync = Q.denodeify(fs.mkdir); // lets try this
 	var promises = [];
-
+	
 	_(platforms).where({
 		isAdded: true
-	}).forEach(function(platform) {
+	})
+	.forEach(function(platform, idx) {
 		var path = resource == 'splash'? platform.splashPath: platform.iconPath;
 		fs.access(path, fs.R_OK|fs.W_OK, function(err) {
 			if (err) {
-				console.log('Making resource dir for '+path.yellow);
-				promises.push(mkdirAsync(path));
+				display.info('Creating resource folder '+path.yellow);
+				promises.push(mkdirAsync(path));				
 			}
-			else 
+			else
 				return;
-		});		
+		});
 	});
-
 	return Q.all(promises);
 };
 
@@ -110,7 +132,8 @@ var makeResourceDir = function(platforms, resource) {
  */
 var generateSplash = function(platform, splash) {
 	var deferred = Q.defer();
-	ig.crop({
+	var transformFunc = settings.options.resize? ig.resize: ig.crop;
+	transformFunc({
 		srcPath: settings.SPLASH_FILE,
 		dstPath: platform.splashPath+'/'+splash.name,
 		quality: 1,
@@ -138,7 +161,8 @@ var generateSplash = function(platform, splash) {
  */
 var generateIcon = function(platform, icon) {
 	var deferred = Q.defer();
-	ig.crop({
+	var transformFunc = settings.options.resize? ig.resize: ig.crop;
+	transformFunc({
 		srcPath: settings.ICON_FILE,
 		dstPath: platform.iconPath +'/'+icon.name,
 		quality: 1,
@@ -164,7 +188,7 @@ var generateIcon = function(platform, icon) {
  */
 var generateSplashForPlatform = function(platform) {
 	var deferred = Q.defer();
-	display.header('Generating splash screen for ' + platform.name);
+	display.info('Generating splash screen for ' + platform.name);
 	var all = [];
 	var splashes = platform.splash;
 	splashes.forEach(function(splash) {
@@ -186,7 +210,7 @@ var generateSplashForPlatform = function(platform) {
  */
 var generateIconForPlatform = function(platform) {
 	var deferred = Q.defer();
-	display.header('Generating icon for ' + platform.name);
+	display.info('Generating icon for ' + platform.name);
 	var all = [];
 	var icons = platform.icon;
 	icons.forEach(function(icon) {
@@ -211,19 +235,22 @@ var generateSplashes = function(platforms) {
 	var deferred = Q.defer();
 	var sequence = Q();
 	var all = [];
-	makeResourceDir(platforms, 'splash').then(function() {
-		_(platforms).where({
-			isAdded: true
-		}).forEach(function(platform) {
-			sequence = sequence.then(function() {
-				return generateSplashForPlatform(platform);
+	var platformsSelected = [];
+	makeResourceDir(platforms, 'splash')
+		.then(function() {
+			_(platforms).where({
+				isAdded: true
+			}).forEach(function(platform) {
+				sequence = sequence.then(function() {
+					platformsSelected.push(platform.name);
+					return generateSplashForPlatform(platform);
+				});
+				all.push(sequence);
 			});
-			all.push(sequence);
+			Q.all(all).then(function() {
+				deferred.resolve({platforms: platformsSelected, type: 'splash'});
+			});
 		});
-		Q.all(all).then(function() {
-			deferred.resolve();
-		});
-	});
 	return deferred.promise;
 };
 
@@ -231,28 +258,31 @@ var generateSplashes = function(platforms) {
 /**
  * Goes over all the platforms and triggers icon generation
  *
- * @param  {Array} platforms
- * @return {Promise}
+ * @param  {Array} platforms The platformas as defined elsewhere in getPlatforms/settings
+ * @return {Promise} The promise is resolve with the platforms which icons which generated for
  */
 var generateIcons = function(platforms) {
 	var deferred = Q.defer();
 	var sequence = Q();
 	var all = [];
-	makeResourceDir(platforms, 'icon').then(function(){
-		_(platforms).where({
-			isAdded: true
-		}).forEach(function(platform) {
-			display.info('About to generate icon for '+platform.name);
-			sequence = sequence.then(function() {
-				return generateIconForPlatform(platform);
+	var platformsSelected = [];
+	makeResourceDir(platforms, 'icon')
+		.then(function() {			
+			_(platforms).where({
+				isAdded: true
+			}).forEach(function(platform) {
+				// display.info('About to generate icon for '+platform.name);
+				sequence = sequence.then(function() {
+					platformsSelected.push(platform.name);
+					return generateIconForPlatform(platform);
+				});
+				all.push(sequence);
 			});
-			all.push(sequence);
-		});
-		Q.all(all).then(function() {
-			deferred.resolve();
-		});	
-	});
-	
+			Q.all(all).then(function() {
+				deferred.resolve({platforms: platformsSelected, type: 'icon'});
+			});
+		})
+
 	return deferred.promise;
 };
 
@@ -270,7 +300,7 @@ var atLeastOnePlatformFound = function() {
 		if (activePlatforms.length > 0) {
 			display.success('Platforms found: ' + _(activePlatforms).pluck('name').join(', ').yellow);
 			deferred.resolve(activePlatforms);
-		} 
+		}
 		else {
 			display.error('No phonegap platforms found. Make sure you are in the root folder of your phonegap project and add platforms with \'phonegap platform add\'');
 			deferred.reject();
@@ -285,14 +315,15 @@ var atLeastOnePlatformFound = function() {
  * @return {Promise} resolves if exists, rejects otherwise
  */
 var validSplashExists = function() {
+	display.header('Splash');
 	var deferred = Q.defer();
 	fs.exists(settings.SPLASH_FILE, function(exists) {
 		if (exists) {
-			display.success(settings.SPLASH_FILE + ' exists');
+			display.success('File '+settings.SPLASH_FILE + ' exists');
 			deferred.resolve(true);
-		} 
+		}
 		else {
-			display.error(settings.SPLASH_FILE + ' does not exist in the root folder');
+			display.error('File '+settings.SPLASH_FILE + ' was not found');
 			deferred.reject();
 		}
 	});
@@ -305,15 +336,15 @@ var validSplashExists = function() {
  * @return {Promise} resolves if exists, rejects otherwise
  */
 var validIconExists = function() {
+	display.header('Icons');
 	var deferred = Q.defer();
 	fs.exists(settings.ICON_FILE, function(exists) {
-		display.header('Checking Project & Icon');
 		if (exists) {
-			display.success(settings.ICON_FILE + ' exists');
+			display.success('File '+settings.ICON_FILE + ' exists');
 			deferred.resolve(true);
-		} 
+		}
 		else {
-			display.error(settings.ICON_FILE + ' does not exist in the root folder');
+			display.error('File '+settings.ICON_FILE + ' was not found');
 			deferred.reject();
 		}
 	});
@@ -329,11 +360,11 @@ var configFileExists = function() {
 	var deferred = Q.defer();
 	fs.exists(settings.CONFIG_FILE, function(exists) {
 		if (exists) {
-			display.success(settings.CONFIG_FILE + ' exists');
+			display.success('Cordova/Phonegap\'s'+settings.CONFIG_FILE + ' exists');
 			deferred.resolve();
-		} 
+		}
 		else {
-			display.error('phonegap\'s ' + settings.CONFIG_FILE + ' does not exist in the root folder');
+			display.error('Cordova/Phonegap\'s ' + settings.CONFIG_FILE + ' was not found in the root folder');
 			deferred.reject();
 		}
 	});
@@ -342,79 +373,108 @@ var configFileExists = function() {
 
 
 var iconsGeneration = function() {
-	display.header('Checking Project & Icon');
-	atLeastOnePlatformFound()
-	.then(validSplashExists)
+	display.header('Icons generation. Checking...');
+	var startProcess;
+	startProcess = settings.options.ignorePlatforms
+		? validIconExists()
+		: atLeastOnePlatformFound().then(validIconExists)
+	// return atLeastOnePlatformFound()
+	// .then(validIconExists)
+	// return validIconExists()
+	return startProcess
 	.then(configFileExists)
 	.then(getProjectName)
 	.then(getPlatforms)
 	.then(generateIcons)
+	.then(platformsMngr.updateConfigFile)
+	.then(function() {
+		display.success('Icon generation ended'.green);
+	})
+	/*
 	.catch(function(err) {
 		if (err) {
 			console.log(err);
 		}
-	}).then(function() {
-		console.log('');
 	});
+	*/
 };
-
 
 var splashGeneration = function() {
-	display.header('Checking Project & Splash');
-	atLeastOnePlatformFound()
-	.then(validSplashExists)
+	display.header('Splash generation. Checking...');
+	var startProcess;
+	startProcess = settings.options.ignorePlatforms
+		? validIconExists()
+		: atLeastOnePlatformFound().then(validIconExists)
+	// return atLeastOnePlatformFound()
+	// .then(validSplashExists)
+	// return validSplashExists()
+	return startProcess
 	.then(configFileExists)
 	.then(getProjectName)
 	.then(getPlatforms)
 	.then(generateSplashes)
-	.catch(function(err) {
-		if (err) {
-			console.log(err);
-		}
-	}).then(function() {
-		console.log('');
-	});
+	.then(platformsMngr.updateConfigFile)
+	.then(function() {
+		display.success('Splash generation ended'.green);
+	})
+	
 };
-
 
 var main = function() {
+	settings.options = getCLIOpts()
+	console.log(' '+"splash'n'icons".yellow.underline+' (short)');
 	display.header('Checking Project & Resources');
-	atLeastOnePlatformFound()
-	.then(validSplashExists)
-	.then(configFileExists)
-	.then(getProjectName)
-	.then(getPlatforms)
-	.then(generateSplashes)
-	.catch(function(err) {
-		if (err) {
-			display.error(err);
-		}
-	})
-	.then(function() {
-		display.success('Splashes generation ended');
-	})
-	.then(validIconExists)
-	.then(configFileExists)
-	.then(getProjectName)
-	.then(getPlatforms)
-	.then(generateIcons)
-	.then(function() {
-		display.success('Icons generation ended');
-	})
-	.catch(function(err) {
-		if (err) {
-			display.error(err);
-		}
-	})
-	.then(platformsMngr.updateConfigFile)
-	.catch(function(err) {
-		if (err)
-			display.error(err);
-	})
-	.then(function() {
-		display.success('End or resources generation');
-	});
+	iconsGeneration()
+	.then(splashGeneration);
 };
+
+
+/**
+ * Parse CLI options and store in settings object<br/>
+ * Options are (-r, --resize, -h --help, -i --ignore-platforms, -iconfile, -splashfile)
+ * @returns {Object} an options plain object or false if error
+ */
+var getCLIOpts = function() {
+	var yargs; // = require('yargs') // (['--help']);
+	yargs = (arguments.length > 0)
+		? require('yargs')(arguments[0])
+		: require('yargs');
+
+	var argv = yargs.usage('$0 [options]')
+		.command('generate', 'Generate assets for platforms iOS/Android')
+		.demand(1)
+    .example('$0 generate', 'Generate the assets')
+		.showHelpOnFail(false, "Specify --help for available options")
+		.option('resize', {
+			alias: 'r',
+			describe: 'Use imagemagick resize method instead crop',
+			type: 'boolean'
+		})
+		.option('ignorePlaforms', {
+			alias: 'i',
+			describe: 'Do not check platforms and generate assets anyway'
+		})
+		.option('iconfile', {
+			describe: 'The name of the icon file in the resources directory',
+			type: 'string'
+		})
+		.option('splashfile', {
+			describe: 'The name of the splash icon file in the resources directory',
+			type: 'string'
+		})		
+		.help('h')
+		.alias('h', 'help')
+		.argv;
+		
+	if (argv.iconfile)
+		settings.ICON_FILE = settings.ICON_FILE.replace('icon.png', argv.iconfile)
+	if (argv.splashfile)
+		settings.SPLASH_FILE = settings.SPLASH_FILE.replace('splash.png', argv.splashfile)
+
+	// console.log('2. getCLIOpts: '+JSON.stringify(argv));
+	return argv;
+}
+
 
 module.exports = {
 	main: main,
@@ -426,7 +486,7 @@ module.exports = {
 	getProjectName: getProjectName,
 	getPlatforms: getPlatforms,
 	atLeastOnePlatformFound: atLeastOnePlatformFound,
-	generateSplahes: generateSplashes,
-	generateIcons: generateIcons
+	getCLIOpts: getCLIOpts
+	// generateSplahes: generateSplashes,
+	// generateIcons: generateIcons
 };
-
