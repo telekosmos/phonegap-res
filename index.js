@@ -104,21 +104,21 @@ var makeResourceDir = function(platforms, resource) {
 
 	mkdirAsync = Q.denodeify(fs.mkdir); // lets try this
 	var promises = [];
-
+	
 	_(platforms).where({
 		isAdded: true
-	}).forEach(function(platform) {
+	})
+	.forEach(function(platform, idx) {
 		var path = resource == 'splash'? platform.splashPath: platform.iconPath;
 		fs.access(path, fs.R_OK|fs.W_OK, function(err) {
 			if (err) {
 				display.info('Creating resource folder '+path.yellow);
-				promises.push(mkdirAsync(path));
+				promises.push(mkdirAsync(path));				
 			}
 			else
 				return;
 		});
 	});
-
 	return Q.all(promises);
 };
 
@@ -236,20 +236,21 @@ var generateSplashes = function(platforms) {
 	var sequence = Q();
 	var all = [];
 	var platformsSelected = [];
-	makeResourceDir(platforms, 'splash').then(function() {
-		_(platforms).where({
-			isAdded: true
-		}).forEach(function(platform) {
-			sequence = sequence.then(function() {
-				platformsSelected.push(platform.name);
-				return generateSplashForPlatform(platform);
+	makeResourceDir(platforms, 'splash')
+		.then(function() {
+			_(platforms).where({
+				isAdded: true
+			}).forEach(function(platform) {
+				sequence = sequence.then(function() {
+					platformsSelected.push(platform.name);
+					return generateSplashForPlatform(platform);
+				});
+				all.push(sequence);
 			});
-			all.push(sequence);
+			Q.all(all).then(function() {
+				deferred.resolve({platforms: platformsSelected, type: 'splash'});
+			});
 		});
-		Q.all(all).then(function() {
-			deferred.resolve({platforms: platformsSelected, type: 'splash'});
-		});
-	});
 	return deferred.promise;
 };
 
@@ -265,21 +266,22 @@ var generateIcons = function(platforms) {
 	var sequence = Q();
 	var all = [];
 	var platformsSelected = [];
-	makeResourceDir(platforms, 'icon').then(function(){
-		_(platforms).where({
-			isAdded: true
-		}).forEach(function(platform) {
-			// display.info('About to generate icon for '+platform.name);
-			sequence = sequence.then(function() {
-				platformsSelected.push(platform.name);
-				return generateIconForPlatform(platform);
+	makeResourceDir(platforms, 'icon')
+		.then(function() {			
+			_(platforms).where({
+				isAdded: true
+			}).forEach(function(platform) {
+				// display.info('About to generate icon for '+platform.name);
+				sequence = sequence.then(function() {
+					platformsSelected.push(platform.name);
+					return generateIconForPlatform(platform);
+				});
+				all.push(sequence);
 			});
-			all.push(sequence);
-		});
-		Q.all(all).then(function() {
-			deferred.resolve({platforms: platformsSelected, type: 'icon'});
-		});
-	});
+			Q.all(all).then(function() {
+				deferred.resolve({platforms: platformsSelected, type: 'icon'});
+			});
+		})
 
 	return deferred.promise;
 };
@@ -415,13 +417,7 @@ var splashGeneration = function() {
 	.then(function() {
 		display.success('Splash generation ended'.green);
 	})
-	/*
-	.catch(function(err) {
-		if (err) {
-			console.log(err);
-		}
-	});
-	*/
+	
 };
 
 var main = function() {

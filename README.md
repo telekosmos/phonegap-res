@@ -11,9 +11,9 @@ Strongly based, inspired and forked from [phonegap-res](https://github.com/macdo
 
 ## Requirements
 - Create a splash screen (`splash.png` 2048x2048) & icon (`icon.png` 1024x1024) in the `resources` folder of your phonegap/cordova project
-- Create root resources folder for the platforms your project supports (this is `resouces/ios` and/or `resources/android`)
+- Create root resources folder for the platforms your project supports (this is `resouces/ios` and/or `resources/android`; necessary nowadays, see below)
 - Cordova's `config.xml` file must exist in the root folder
-- use `splash-n-icons` command to automatically crop and copy it for all the platforms your project supports (currenty works with iOS and Android).
+- use `splash-n-icons generate` command to automatically crop and copy it for all the platforms your project supports (currenty works with iOS and Android).
 - No need to have a platform installed in your project
 
 
@@ -63,4 +63,5 @@ MIT
 
 ### Future?
 - Generate icons __or__ splash screens
+- Generate `android` and/or `ios` resource directories
 - Add more tests.

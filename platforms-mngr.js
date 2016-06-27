@@ -29,6 +29,7 @@ var getPlatforms = function() {
 		name: 'ios',
 		// TODO:30 use async fs.exists
 		isAdded: fs.existsSync(IOS_DIR), // fs.existsSync(IOS_DIR+'/splash') && fs.existsSync(IOS_DIR+'/icon'),
+		resourceRoot: IOS_DIR,
 		splashPath: IOS_DIR+'/splash',
 		iconPath: IOS_DIR+'/icon',
 		icon: [{
@@ -172,6 +173,7 @@ var getPlatforms = function() {
 	platforms.push({
 		name: 'android',
 		isAdded: fs.existsSync(AND_DIR), // fs.existsSync(AND_DIR+'/splash') && fs.existsSync(AND_DIR+'/icon'),
+		resourceRoot: AND_DIR,
 		splashPath: AND_DIR+'/splash',
 		iconPath: AND_DIR+'/icon',
 		icon: [{
