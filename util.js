@@ -10,6 +10,7 @@ var settings = {};
 settings.CONFIG_FILE = './config.xml';
 settings.SPLASH_FILE = RESOURCES_DIR+'/splash.png';
 settings.ICON_FILE = RESOURCES_DIR+'/icon.png';
+settings.options = {};
 
 /**
  * @var {Object} console utils

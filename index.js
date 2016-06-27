@@ -63,7 +63,28 @@ var getProjectName = function() {
 
 
 /**
- * Make the directories for icons and resources
+ * Make the directories for icons and splashes
+ * 
+ * 
+ * /*
+	_(platforms).where({
+		isAdded: false
+	}).forEach(function(platform) {
+		var pathPlatform = platform.name == 'ios'? IOS_DIR: AND_DIR;
+		fs.access(pathPlatform, fs.R_OK|fs.W_OK, function(err) {
+			if (err) {
+				display.info('Creating resource folder '+pathPlatform.yellow);
+				platformsPromises.push(mkdirAsync(pathPlatform));
+				platform.isAdded = true;
+			}
+			else
+				return;
+		})
+	});
+*
+	// return Q.all(platformPromises).then(function() {
+
+ *
  * @param  {Array} platforms List of platforms
  * @param  {String} resource Type of resouce (one of icon, splash)
  * @return {Promise} A promise resolved with nothing (as mkdir returns undefined)
@@ -111,7 +132,8 @@ var makeResourceDir = function(platforms, resource) {
  */
 var generateSplash = function(platform, splash) {
 	var deferred = Q.defer();
-	ig.crop({
+	var transformFunc = settings.options.resize? ig.resize: ig.crop;
+	transformFunc({
 		srcPath: settings.SPLASH_FILE,
 		dstPath: platform.splashPath+'/'+splash.name,
 		quality: 1,
@@ -139,7 +161,8 @@ var generateSplash = function(platform, splash) {
  */
 var generateIcon = function(platform, icon) {
 	var deferred = Q.defer();
-	ig.crop({
+	var transformFunc = settings.options.resize? ig.resize: ig.crop;
+	transformFunc({
 		srcPath: settings.ICON_FILE,
 		dstPath: platform.iconPath +'/'+icon.name,
 		quality: 1,
@@ -349,8 +372,14 @@ var configFileExists = function() {
 
 var iconsGeneration = function() {
 	display.header('Icons generation. Checking...');
-	return atLeastOnePlatformFound()
-	.then(validIconExists)
+	var startProcess;
+	startProcess = settings.options.ignorePlatforms
+		? validIconExists()
+		: atLeastOnePlatformFound().then(validIconExists)
+	// return atLeastOnePlatformFound()
+	// .then(validIconExists)
+	// return validIconExists()
+	return startProcess
 	.then(configFileExists)
 	.then(getProjectName)
 	.then(getPlatforms)
@@ -359,17 +388,25 @@ var iconsGeneration = function() {
 	.then(function() {
 		display.success('Icon generation ended'.green);
 	})
+	/*
 	.catch(function(err) {
 		if (err) {
 			console.log(err);
 		}
 	});
+	*/
 };
 
 var splashGeneration = function() {
 	display.header('Splash generation. Checking...');
-	return atLeastOnePlatformFound()
-	.then(validSplashExists)
+	var startProcess;
+	startProcess = settings.options.ignorePlatforms
+		? validIconExists()
+		: atLeastOnePlatformFound().then(validIconExists)
+	// return atLeastOnePlatformFound()
+	// .then(validSplashExists)
+	// return validSplashExists()
+	return startProcess
 	.then(configFileExists)
 	.then(getProjectName)
 	.then(getPlatforms)
@@ -378,19 +415,70 @@ var splashGeneration = function() {
 	.then(function() {
 		display.success('Splash generation ended'.green);
 	})
+	/*
 	.catch(function(err) {
 		if (err) {
 			console.log(err);
 		}
 	});
+	*/
 };
 
 var main = function() {
-	console.log(' '+`splash'n'icons`.yellow.underline+' (short)');
+	settings.options = getCLIOpts()
+	console.log(' '+"splash'n'icons".yellow.underline+' (short)');
 	display.header('Checking Project & Resources');
 	iconsGeneration()
 	.then(splashGeneration);
 };
+
+
+/**
+ * Parse CLI options and store in settings object<br/>
+ * Options are (-r, --resize, -h --help, -i --ignore-platforms, -iconfile, -splashfile)
+ * @returns {Object} an options plain object or false if error
+ */
+var getCLIOpts = function() {
+	var yargs; // = require('yargs') // (['--help']);
+	yargs = (arguments.length > 0)
+		? require('yargs')(arguments[0])
+		: require('yargs');
+
+	var argv = yargs.usage('$0 [options]')
+		.command('generate', 'Generate assets for platforms iOS/Android')
+		.demand(1)
+    .example('$0 generate', 'Generate the assets')
+		.showHelpOnFail(false, "Specify --help for available options")
+		.option('resize', {
+			alias: 'r',
+			describe: 'Use imagemagick resize method instead crop',
+			type: 'boolean'
+		})
+		.option('ignorePlaforms', {
+			alias: 'i',
+			describe: 'Do not check platforms and generate assets anyway'
+		})
+		.option('iconfile', {
+			describe: 'The name of the icon file in the resources directory',
+			type: 'string'
+		})
+		.option('splashfile', {
+			describe: 'The name of the splash icon file in the resources directory',
+			type: 'string'
+		})		
+		.help('h')
+		.alias('h', 'help')
+		.argv;
+		
+	if (argv.iconfile)
+		settings.ICON_FILE = settings.ICON_FILE.replace('icon.png', argv.iconfile)
+	if (argv.splashfile)
+		settings.SPLASH_FILE = settings.SPLASH_FILE.replace('splash.png', argv.splashfile)
+
+	// console.log('2. getCLIOpts: '+JSON.stringify(argv));
+	return argv;
+}
+
 
 module.exports = {
 	main: main,
@@ -401,7 +489,8 @@ module.exports = {
 	validSplashExists: validSplashExists,
 	getProjectName: getProjectName,
 	getPlatforms: getPlatforms,
-	atLeastOnePlatformFound: atLeastOnePlatformFound
+	atLeastOnePlatformFound: atLeastOnePlatformFound,
+	getCLIOpts: getCLIOpts
 	// generateSplahes: generateSplashes,
 	// generateIcons: generateIcons
 };

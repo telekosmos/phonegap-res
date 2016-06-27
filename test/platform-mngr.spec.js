@@ -132,7 +132,7 @@ describe('platformMngr', function() {
 	describe('predefined assets', function() {
 		var promiseIcon, promiseSplash, promiseConvert,
 			iconsMock = require('./common').iosIcons,
-			splashAndr = require('./common').andrSplashes;
+			splashAndrMock = require('./common').andrSplashes;
 
 		beforeEach(function() {
 			promiseIcon = platformMngr.getAssetsFromSettings('ios', 'icon');
@@ -160,8 +160,8 @@ describe('platformMngr', function() {
 		});
 
 		it('should convert splash to xml2js format', function() {
-			should.exist(splashAndr);
-			promiseConvert = platformMngr.convert4xml(splashAndr);
+			should.exist(splashAndrMock);
+			promiseConvert = platformMngr.convert4xml(splashAndrMock);
 			return promiseConvert.then(function(list) {
 				should.exist(list);
 				list.should.be.instanceof(Array);
@@ -174,7 +174,7 @@ describe('platformMngr', function() {
 		});
 
 		it('should convert all assets', function() {
-			var allAssets = [iconsMock, splashAndr];
+			var allAssets = [iconsMock, splashAndrMock];
 			promiseConvert = platformMngr.convertAllAssets(allAssets);
 			return promiseConvert.then(function(newAssets) {
 				should.exist(newAssets);
