@@ -30,11 +30,12 @@
   },
   "homepage": "https://github.com/telekosmos/splash-n-icons.git",
   "dependencies": {
-    "imagemagick": "^0.1.3",
-    "underscore": "^1.6.0",
     "colors": "^0.6.2",
+    "imagemagick": "^0.1.3",
     "q": "^1.0.1",
-    "xml2js": "^0.4.3"
+    "underscore": "^1.6.0",
+    "xml2js": "^0.4.3",
+    "yargs": "^4.7.1"
   },
   "devDependencies": {
     "chai": "^3.4.1",
